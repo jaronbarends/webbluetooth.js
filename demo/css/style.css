@@ -1,0 +1,110 @@
+
+html {
+	font-size: 62.5%;/* 10px */
+}
+
+body {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 1.6rem;
+	line-height: 1.5;
+}
+
+h1 {
+	font-size: 3.2rem;
+	font-weight: bold;
+}
+
+h2 {
+	font-size: 2.4rem;
+	font-weight: bold;
+}
+
+p {
+	margin: 0 0 1em;
+}
+
+p:last-child {
+	margin-bottom: 0;
+}
+
+ul {
+	padding: 0;
+}
+
+form {
+	--label-width: 10em;
+	--label-pr: 1em;
+	transition: opacity 200ms ease-in-out;
+}
+
+form.is-disabled {
+	opacity: 0.2;
+	pointer-events: none;
+}
+
+fieldset {
+	margin-bottom: 2em;
+	border: none;
+}
+
+legend {
+	font-weight: bold;
+}
+
+label {
+	display: inline-block;
+	margin-left: calc(-1*var(--label-width) - var(--label-pr));
+	padding-right: var(--label-pr);
+	width: var(--label-width);
+	text-align: right;
+	vertical-align: middle;
+}
+
+input {
+	vertical-align: middle;
+	font: inherit;
+}
+input[type="text"] {
+	padding: 0.5em 1em;
+	/* font-variant-numeric: tabular-nums slashed-zero; */
+	font-family: 'lucida console', 'courier new', monospace;
+	
+}
+
+.o-content-width {
+	margin: 2em auto;
+	max-width: 40em;
+}
+
+.btn {
+	color: white;
+	border: none;
+	padding: 0.5em 1em;
+	background: cornflowerblue;
+	font: inherit;
+}
+
+.btn[disabled] {
+	opacity: 0.3;
+}
+
+.btn--connect {
+	background: green;
+}
+
+.btn--disconnect {
+	background: #c00;
+}
+
+.form-list {
+	list-style: none;
+}
+
+.form-row {
+	padding: 0.5em 0 0.5em calc(var(--label-width) + var(--label-pr));
+}
+
+.explanation {
+	color: #999;
+	font-size: smaller;
+}

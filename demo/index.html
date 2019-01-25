@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="nl-nl">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	
+	<title>WebBluetooth interface</title>
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+	<div class="o-content-width">
+
+		<form>
+			<fieldset>
+				<legend>Connection</legend>
+				<ul class="form-list">
+					<li class="form-row">
+						<label for="filter-service-uuid">Filter Service UUID</label>
+						<input type="text" id="filter-service-uuid" value="0xffe5">
+						<p class="explanation">
+							hex value, e.g. 0xffe5 or ffe5
+						</p>
+						
+					</li>
+					<li class="form-row">
+						<button id="btn--connect" class="btn btn--connect">Connect</button>
+						<button id="btn--disconnect" class="btn btn--disconnect">Disonnect</button>
+					</li>
+				</ul>
+			</fieldset>
+
+			<fielset>
+				<legend>Write values</legend>
+				<ul class="form-list">
+						<li class="form-row">
+							<label for="write-service-uuid">Service UUID</label>
+							<input type="text" id="write-service-uuid" value="0xffe5">
+							<p class="explanation">
+								hex value, e.g. 0xffe5 or ffe5
+							</p>
+						</li>
+						<li class="form-row">
+							<label for="write-characteristic-uuid">Characteristic UUID</label>
+							<input type="text" id="write-characteristic-uuid" value="0xffe9">
+							<p class="explanation">
+								hex value, e.g. 0xffe9 or ffe9
+							</p>
+						</li>
+						<li class="form-row">
+							<label for="write-value">Value</label>
+							<input type="text" id="write-value" value="56 ff 00 ff bb f0 aa">
+							<!-- const value = new Uint8Array([0x56, r, g, b, 0xbb, 0xf0, 0xaa]); -->
+							<p class="explanation">
+								Uint8Array, e.g. 56 ff 00 ff bb f0 aa
+							</p>
+						</li>
+					<li class="form-row">
+						<button id="btn--write" class="btn btn--write">Write</button>
+					</li>
+				</ul>
+			</fielset>
+
+		</form>
+		
+
+	</div><!-- /.o-content-width -->
+	<script src="../src/webbluetooth.js"></script>
+	<script src="js/interface.js"></script>
+</body>
+</html>
