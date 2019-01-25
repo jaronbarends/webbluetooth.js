@@ -54,15 +54,6 @@
 		isConnected = await webBluetooth.connect(serviceUuid);
 		setConnectionStatus();
 	};
-	
-
-	/**
-	* get hex value of input by id
-	* @returns {undefined}
-	*/
-	const getValueById = function(id) {
-		return parseFloat(document.getElementById(id).value);
-	};
 
 
 	/**
@@ -79,7 +70,27 @@
 	* @returns {undefined}
 	*/
 	const writeHandler = async function(e) {
+		e.preventDefault();
+		// stuff needs to be passed to webBluetooth like this:
+		//   const value = new Uint8Array([0x56, r, g, b, 0xbb, 0xf0, 0xaa]);
+		//   webBluetooth.writeValue(serviceUuid, characteristicUuid, value);
+
+		// get service uuid
+		const serviceUuid = valueFromHexString(writeServiceInput.value);
+
+		// get characteristic uuid
+		const characteristicUuid = valueFromHexString(writeCharacteristicInput.value);
 		
+		// create Uint8Array from value
+		const strArray = writeValueInput.value.split(' ');// array with strings like "ff", "01"
+		const valuesFromHexArray = [];// will be filled with values like 255, 01
+		strArray.forEach((str) => {
+			valuesFromHexArray.push(valueFromHexString(str));
+		});
+		const writeValue = new Uint8Array(valuesFromHexArray);
+
+		// now write value
+		webBluetooth.writeValue(serviceUuid, characteristicUuid, writeValue);
 	};
 	
 

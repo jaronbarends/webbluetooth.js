@@ -6,6 +6,7 @@ const WebBluetooth = (function() {
 		constructor() {
 			this._device = null;
 			this._gattServer = null;
+			this._services = new Map();
 			this._service = null;
 			this._characteristics = new Map();
 		}
@@ -31,7 +32,10 @@ const WebBluetooth = (function() {
 			try {
 				this._device = await navigator.bluetooth.requestDevice(options);
 				this._gattServer = await this._device.gatt.connect();
-				this._service = await this._gattServer.getPrimaryService(serviceUuid);
+				if (serviceUuid) {
+					await this._setService(serviceUuid);
+					// this._service = await this._getService(serviceUuid);
+				}
 				return true;
 			} catch(error) {
 				console.warn(`Something went wrong while connecting:`, error);
@@ -66,12 +70,14 @@ const WebBluetooth = (function() {
 
 		/**
 		* write a value to a characteristic
+		* @param {string} serviceUuid - The UUID of the service the characteristic belongs to
 		* @param {string} characteristicUuid - The UUID of the characteristic to write to
 		* @param {number} vale - The value to write
 		* @returns {undefined}
 		*/
-		async writeValue(characteristicUuid, value) {
+		async writeValue(serviceUuid, characteristicUuid, value) {
 			try {
+				await this._setService(serviceUuid);
 				const characteristic = await this._getCharacteristic(characteristicUuid);
 				return characteristic.writeValue(value);
 			} catch(error) {
@@ -85,7 +91,37 @@ const WebBluetooth = (function() {
 
 		/**
 		* get a characteristic from the device
+		* @returns {service}
+		*/
+		async _getService(serviceUuid) {
+			if (!this.isConnected()) {
+				throw new Error('Device not connected');
+			}
+
+			// check if we've already got this service
+			let service = this._services.get(serviceUuid);
+			if (typeof service === 'undefined') {
+				// this service hasn't been requested yet
+				service = await this._gattServer.getPrimaryService(serviceUuid);
+				// cache for later use
+				this._services.set(serviceUuid, service);
+			}
+			return service;
+		};
+
+		/**
+		* set the current service to interact with
 		* @returns {undefined}
+		*/
+		async _setService(serviceUuid) {
+			this._service = await this._getService(serviceUuid);
+		};
+		
+
+
+		/**
+		* get a characteristic from the device
+		* @returns {characteristic}
 		*/
 		async _getCharacteristic(characteristicUuid) {
 			if (!this.isConnected()) {
