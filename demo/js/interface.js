@@ -24,7 +24,9 @@
 			isConnected = false;
 			setConnectionStatus();
 		});
-		document.getElementById(`btn--write`).addEventListener('click', writeHandler);
+		Array.from(document.querySelectorAll(`[data-btn-write]`)).forEach((btn) => {
+			btn.addEventListener('click', writeHandler);
+		});
 	};
 
 
@@ -50,6 +52,7 @@
 	* #2: 16-bit id's like 0xffe9
 	* how these two relate: https://stackoverflow.com/questions/36212020/how-can-i-convert-a-bluetooth-16-bit-service-uuid-into-a-128-bit-uuid
 	* return type #1 as string, type #2 as number.
+	* todo: add possibility for strings like "heart_rate"
 	* @returns {string | number}
 	*/
 	const getUuidFromString = function(str) {
@@ -57,8 +60,10 @@
 		if (str.match(/[0-9a-z]{8}-(?:[0-9a-z]{4}-){3}[0-9a-z]{12}/i)) {
 			uuid = str;
 		} else {
+			// todo check if this are only hex characters
 			uuid = valueFromHexString(str);
 		}
+		// todo add possibility for string
 		return uuid;
 	};
 	
@@ -71,10 +76,47 @@
 	*/
 	const connectHandler = async function(e) {
 		e.preventDefault();
-		const serviceUuid = getUuidFromString(filterServiceInput.value);
-		isConnected = await webBluetooth.connect(serviceUuid);
+		const options = getConnectionOptions();
+		// const serviceUuid = getUuidFromString(filterServiceInput.value);
+		isConnected = await webBluetooth.connect(options);
 		setConnectionStatus();
 	};
+
+
+	/**
+	* 
+	* @returns {undefined}
+	*/
+	const getConnectionOptions = function() {
+		const options = {};
+
+		// add services
+		const serviceInputs = Array.from(document.querySelectorAll(`[data-filter-service]`));
+		const servicesCount = serviceInputs.length;
+		if (servicesCount.length === 1) {
+			options.services = getUuidFromString(serviceInputs[0].value);// we could also make array of just one, but this way we can test passing in a single value as well :)
+		} else {
+			options.services = [];
+			serviceInputs.forEach((input) => {
+				options.services.push(getUuidFromString(input.value));
+			});
+		}
+
+		// add name
+		const filterName = document.getElementById(`filter-name`).value;
+		if (filterName) {
+			options.name = filterName;
+		}
+
+		// add namePrefix
+		const filterNamePrefix = document.getElementById(`filter-name-prefix`).value;
+		if (filterNamePrefix) {
+			options.namePrefix = filterNamePrefix;
+		}
+
+		return options;
+	};
+	
 
 
 	/**
@@ -109,7 +151,6 @@
 		strArray.forEach((str) => {
 			valuesFromHexArray.push(valueFromHexString(str));
 		});
-		console.log(valuesFromHexArray);
 		const writeValue = new Uint8Array(valuesFromHexArray);
 
 		// now write value

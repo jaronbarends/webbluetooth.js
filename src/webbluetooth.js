@@ -10,29 +10,21 @@ const WebBluetooth = (function() {
 		
 		/**
 		* connect with a peripheral device
-		* @param {number} serviceUuid - The uuid of the device's service we want to target
+		* @param {object} options - Optional connection options. Possible properties: services (UUID or array of UUID's), name (string), namePrefix (string), optionalServices (UUID or array of UUID's)
 		* @returns {boolean}
 		*/
-		async connect(serviceUuid=null) {
-			let options = {
-				acceptAllDevices: true
-			}
-			if (serviceUuid) {
-				options = {
-					filters: [{
-						services: [serviceUuid]
-					}]
-				}
-			}
+		async connect(options) {
+			console.log('options passed in:', options);
+			options = this._createOptionsObject(options);
+			console.log('options to pass on:', options);
 
 			this._resetAll();
-
 			try {
 				this._device = await navigator.bluetooth.requestDevice(options);
 				this._gattServer = await this._device.gatt.connect();
-				if (serviceUuid) {
-					// let's proactively get this service
-					await this._getService(serviceUuid);
+				if (options.filter && options.filter.services) {
+					// let's proactively get these services
+					// await this._getService(serviceUuid);
 				}
 				return true;
 			} catch(error) {
@@ -142,6 +134,56 @@ const WebBluetooth = (function() {
 				}
 			}
 			return characteristic;
+		};
+
+
+		//-- helper functions
+
+		/**
+		* create an options object to pass to requestDevice
+		* @param {object} params - Optional connection options. Possible properties: services (UUID or array of UUID's), name (string), namePrefix (string), optionalServices (UUID or array of UUID's)
+		* @returns {object} - object containing either filters or acceptAllDevices=true
+		*/
+		_createOptionsObject(params) {
+			const options = {};
+			if (params) {
+				if (params.services) {
+					options.filters = [
+						{ services: this._getArray(params.services) }
+					];
+				}
+				if (params.name) {
+					options.filters = options.filters || [];
+					options.filters.push({
+						name: params.name
+					});
+				}
+				if (params.namePrefix) {
+					options.filters = options.filters || [];
+					options.filters.push({
+						namePrefix: params.namePrefix
+					});
+				}
+			}
+			if (!options.filters) {
+				// no valid params were passed in
+				options.acceptAllDevices = true;
+			}
+
+			return options;
+		};
+
+
+		/**
+		* check if an object is an array or a single value. If single value, turn into array
+		* @param {any} value - An array or single value
+		* @returns {Array}
+		*/
+		_getArray(value) {
+			if (!Array.isArray(value)) {
+				value = [value];
+			}
+			return value;
 		};
 
 

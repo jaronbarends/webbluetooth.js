@@ -15,57 +15,92 @@
 
 		<form>
 			<fieldset>
-				<legend>Connection</legend>
-				<ul class="form-list">
-					<li class="form-row">
-						<label for="filter-service-uuid">Filter Service UUID</label>
-						<!-- <input type="text" id="filter-service-uuid" value="0xffe5"> -->
-						<input type="text" id="filter-service-uuid" value="">
+				<legend>connection options</legend>
+				<h3>filters</h3>
+				<ul class="filters-list u-list--bare">
+					<li class="filter-type">
+						<label for="filter-service-uuid-1">service <span class="weak">(UUID)</span></label>
+						<input class="input--uuid" id="filter-service-uuid-1" type="text" value="0xffe5" data-filter-service>
+						<!-- <input class="input--uuid" id="filter-service-uuid-1" type="text" value=""> -->
 						<p class="explanation">
-							hex value, e.g. 0xffe5 or ffe5
+							valid UUID, e.g. 'heart_rate', 0xffe5,  'c48e6067-5295-48d3-8d5c-0395f61792b1'
 						</p>
+						<!--
+							It must be a valid UUID alias (e.g. 0x1234), UUID (lowercase hex characters e.g. '00001234-0000-1000-8000-00805f9b34fb'), or recognized standard name from https://www.bluetooth.com/specifications/gatt/services e.g. 'alert_notification'.
+						-->
 						
 					</li>
-					<li class="form-row">
-						<button id="btn--connect" class="btn btn--connect">Connect</button>
-						<button id="btn--disconnect" class="btn btn--disconnect">Disonnect</button>
+					<li class="filter-type">
+						<label for="filter-name">name</label>
+						<input id="filter-name" type="text" value="">
+						<p class="explanation">
+							e.g. "fitbit"
+						</p>
+					</li>
+					<li class="filter-type">
+						<label for="filter-name=prefix">prefix</label>
+						<input id="filter-name-prefix" type="text" value="">
+						<p class="explanation">
+							e.g. "fit" will match "fitbit" and "fitnesscoach"
+						</p>
+					</li>
+				</ul>
+				<h3>optional services</h3>
+				<ul class="optional-services-list">
+
+				</ul>
+				<button id="btn--connect" class="btn btn--connect">Connect</button>
+				<button id="btn--disconnect" class="btn btn--disconnect">Disonnect</button>
+			</fieldset>
+
+			<fieldset>
+				<legend>services</legend>
+				<ul class="services-list u-list--bare">
+					<li class="service-row">
+						<label for="write-service-uuid">service <span class="weak">(UUID)</span></label>
+						<input type="text" id="write-service-uuid" value="0xffe5">
+						<!-- <input class="input--uuid" id="write-service-uuid" type="text" value="4dc591b0-857c-41de-b5f1-15abda665b0c"> -->
+						<p class="explanation">
+							hex value, e.g. 0xffe5 or ffe5<br>
+							SBrick remote: 4dc591b0-857c-41de-b5f1-15abda665b0c<br>
+							MagicBlue: 0xffe5
+						</p>
+
+						<ul class="characteristics-list u-list--bare">
+							<li class="characteristic">
+								<ul class="characteristic__controls u-list--bare">
+									<li class="characteristic__control">
+										<label for="write-characteristic-uuid">characteristic <span class="weak">(UUID)</span></label>
+										<input type="text" id="write-characteristic-uuid" value="0xffe9">
+										<!-- <input class="input--uuid" id="write-characteristic-uuid" type="text" value="02b8cbcc-0e25-4bda-8790-a15f53e6010f"> -->
+										<p class="explanation">
+											hex value<br>
+											e.g. 0xffe9 or ffe9<br>
+											SBrick drive: 02b8cbcc-0e25-4bda-8790-a15f53e6010f<br>
+											MagicBlue: 0xffe9
+										</p>
+									</li>
+									<li class="characteristic__control">
+											<label for="write-value">value</label>
+											<input type="text" id="write-value" value="56 ff 00 ff bb f0 aa">
+											<!-- <input id="write-value" type="text" value="01 00 00 c0"> -->
+											<p class="explanation">
+												space separated Uint8Array<br>
+												e.g. 56 ff 00 ff bb f0 aa<br>
+												SBrick: 01(drive) 0-3(port) 0-1(CW/CCW) 0-255(power)<br>
+												MagicBlue: 56 RR GG BB bb f0 aa
+											</p>
+									</li>
+									<li class="characteristic__control characteristic__control--buttons">
+										<button class="btn btn--write" data-btn-write>write</button>
+										<button class="btn btn--read" data-btn-write>read</button>
+									</li>
+								</ul>
+							</li>
+						</ul>
 					</li>
 				</ul>
 			</fieldset>
-
-			<fielset>
-				<legend>Write values</legend>
-				<ul class="form-list">
-						<li class="form-row">
-							<label for="write-service-uuid">Service UUID</label>
-							<!-- <input type="text" id="write-service-uuid" value="0xffe5"> -->
-							<input type="text" id="write-service-uuid" value="4dc591b0-857c-41de-b5f1-15abda665b0c">
-							<p class="explanation">
-								hex value, e.g. 0xffe5 or ffe5
-							</p>
-						</li>
-						<li class="form-row">
-							<label for="write-characteristic-uuid">Characteristic UUID</label>
-							<!-- <input type="text" id="write-characteristic-uuid" value="0xffe9"> -->
-							<input type="text" id="write-characteristic-uuid" value="02b8cbcc-0e25-4bda-8790-a15f53e6010f">
-							<p class="explanation">
-								hex value, e.g. 0xffe9 or ffe9
-							</p>
-						</li>
-						<li class="form-row">
-							<label for="write-value">Value</label>
-							<!-- <input type="text" id="write-value" value="56 ff 00 ff bb f0 aa"> -->
-							<input type="text" id="write-value" value="01 00 00 c0">
-							<p class="explanation">
-								space separated Uint8Array, e.g. 56 ff 00 ff bb f0 aa<br>
-								SBrick: 01(drive) 0-3(port) 0-1(CW/CCW) 0-255(power)
-							</p>
-						</li>
-					<li class="form-row">
-						<button id="btn--write" class="btn btn--write">Write</button>
-					</li>
-				</ul>
-			</fielset>
 
 		</form>
 		

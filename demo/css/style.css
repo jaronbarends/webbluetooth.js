@@ -52,28 +52,27 @@ legend {
 }
 
 label {
-	display: inline-block;
-	margin-left: calc(-1*var(--label-width) - var(--label-pr));
-	padding-right: var(--label-pr);
-	width: var(--label-width);
-	text-align: right;
-	vertical-align: middle;
+	display: block;
+	font-weight: bold;
 }
 
 input {
 	vertical-align: middle;
 	font: inherit;
 }
+
 input[type="text"] {
-	padding: 0.5em 1em;
+	margin-bottom: 0.2em;
+	padding: 0.2em 0;
+	border: none;
+	border-bottom: 1px solid;
 	/* font-variant-numeric: tabular-nums slashed-zero; */
 	font-family: 'lucida console', 'courier new', monospace;
-	
 }
 
 .o-content-width {
 	margin: 2em auto;
-	max-width: 40em;
+	max-width: 60em;
 }
 
 .btn {
@@ -104,7 +103,41 @@ input[type="text"] {
 	padding: 0.5em 0 0.5em calc(var(--label-width) + var(--label-pr));
 }
 
-.explanation {
+.explanation,
+.weak {
 	color: #999;
+	font-weight: normal;
 	font-size: smaller;
+}
+
+.u-list--bare {
+	list-style: none;
+}
+
+/*-- Start characteristic --*/
+
+	.characteristics-list {
+		margin-top: 2em;
+	}
+
+	.characteristic {
+		margin-left: 2em;
+	}
+
+	.characteristic__controls {
+		display: flex;
+	}
+
+	.characteristic__control {
+		margin-left: 2em;
+	}
+
+	.characteristic__control:first-child {
+		margin-left: 0;
+	}
+
+/*-- End characteristic --*/
+
+.input--uuid {
+	width: 38ch;
 }
