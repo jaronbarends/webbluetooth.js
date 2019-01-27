@@ -41,6 +41,27 @@
 		}
 		return parseInt(hexString);
 	};
+
+
+	/**
+	* get a UUID value from a string
+	* I've encountered two types of UUIDs:
+	* #1: 128-bit 4dc591b0-857c-41de-b5f1-15abda665b0c (i.e. 8-4-4-4-12 numbers)
+	* #2: 16-bit id's like 0xffe9
+	* how these two relate: https://stackoverflow.com/questions/36212020/how-can-i-convert-a-bluetooth-16-bit-service-uuid-into-a-128-bit-uuid
+	* return type #1 as string, type #2 as number.
+	* @returns {string | number}
+	*/
+	const getUuidFromString = function(str) {
+		let uuid;
+		if (str.match(/[0-9a-z]{8}-(?:[0-9a-z]{4}-){3}[0-9a-z]{12}/i)) {
+			uuid = str;
+		} else {
+			uuid = valueFromHexString(str);
+		}
+		return uuid;
+	};
+	
 	
 
 
@@ -50,7 +71,7 @@
 	*/
 	const connectHandler = async function(e) {
 		e.preventDefault();
-		const serviceUuid = valueFromHexString(filterServiceInput.value);
+		const serviceUuid = getUuidFromString(filterServiceInput.value);
 		isConnected = await webBluetooth.connect(serviceUuid);
 		setConnectionStatus();
 	};
@@ -74,12 +95,13 @@
 		// stuff needs to be passed to webBluetooth like this:
 		//   const value = new Uint8Array([0x56, r, g, b, 0xbb, 0xf0, 0xaa]);
 		//   webBluetooth.writeValue(serviceUuid, characteristicUuid, value);
+		console.log('go write');
 
 		// get service uuid
-		const serviceUuid = valueFromHexString(writeServiceInput.value);
+		const serviceUuid = getUuidFromString(writeServiceInput.value);
 
 		// get characteristic uuid
-		const characteristicUuid = valueFromHexString(writeCharacteristicInput.value);
+		const characteristicUuid = getUuidFromString(writeCharacteristicInput.value);
 		
 		// create Uint8Array from value
 		const strArray = writeValueInput.value.split(' ');// array with strings like "ff", "01"
@@ -87,6 +109,7 @@
 		strArray.forEach((str) => {
 			valuesFromHexArray.push(valueFromHexString(str));
 		});
+		console.log(valuesFromHexArray);
 		const writeValue = new Uint8Array(valuesFromHexArray);
 
 		// now write value

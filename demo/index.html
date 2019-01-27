@@ -19,7 +19,8 @@
 				<ul class="form-list">
 					<li class="form-row">
 						<label for="filter-service-uuid">Filter Service UUID</label>
-						<input type="text" id="filter-service-uuid" value="0xffe5">
+						<!-- <input type="text" id="filter-service-uuid" value="0xffe5"> -->
+						<input type="text" id="filter-service-uuid" value="">
 						<p class="explanation">
 							hex value, e.g. 0xffe5 or ffe5
 						</p>
@@ -37,24 +38,27 @@
 				<ul class="form-list">
 						<li class="form-row">
 							<label for="write-service-uuid">Service UUID</label>
-							<input type="text" id="write-service-uuid" value="0xffe5">
+							<!-- <input type="text" id="write-service-uuid" value="0xffe5"> -->
+							<input type="text" id="write-service-uuid" value="4dc591b0-857c-41de-b5f1-15abda665b0c">
 							<p class="explanation">
 								hex value, e.g. 0xffe5 or ffe5
 							</p>
 						</li>
 						<li class="form-row">
 							<label for="write-characteristic-uuid">Characteristic UUID</label>
-							<input type="text" id="write-characteristic-uuid" value="0xffe9">
+							<!-- <input type="text" id="write-characteristic-uuid" value="0xffe9"> -->
+							<input type="text" id="write-characteristic-uuid" value="02b8cbcc-0e25-4bda-8790-a15f53e6010f">
 							<p class="explanation">
 								hex value, e.g. 0xffe9 or ffe9
 							</p>
 						</li>
 						<li class="form-row">
 							<label for="write-value">Value</label>
-							<input type="text" id="write-value" value="56 ff 00 ff bb f0 aa">
-							<!-- const value = new Uint8Array([0x56, r, g, b, 0xbb, 0xf0, 0xaa]); -->
+							<!-- <input type="text" id="write-value" value="56 ff 00 ff bb f0 aa"> -->
+							<input type="text" id="write-value" value="01 00 00 c0">
 							<p class="explanation">
-								space separated Uint8Array, e.g. 56 ff 00 ff bb f0 aa
+								space separated Uint8Array, e.g. 56 ff 00 ff bb f0 aa<br>
+								SBrick: 01(drive) 0-3(port) 0-1(CW/CCW) 0-255(power)
 							</p>
 						</li>
 					<li class="form-row">
