@@ -49,6 +49,7 @@
 	* get a UUID value from a string
 	* I've encountered two types of UUIDs:
 	* #1: 128-bit 4dc591b0-857c-41de-b5f1-15abda665b0c (i.e. 8-4-4-4-12 numbers)
+	* For types, services and profiles specified by the SIG, these always end in -0000-1000-8000-00805f9b34fb
 	* #2: 16-bit id's like 0xffe9
 	* how these two relate: https://stackoverflow.com/questions/36212020/how-can-i-convert-a-bluetooth-16-bit-service-uuid-into-a-128-bit-uuid
 	* return type #1 as string, type #2 as number.
@@ -58,7 +59,10 @@
 	const getUuidFromString = function(str) {
 		let uuid;
 		if (str.match(/[0-9a-z]{8}-(?:[0-9a-z]{4}-){3}[0-9a-z]{12}/i)) {
-			uuid = str;
+			uuid = str.toLowerCase();
+			if (uuid !== str) {
+				console.warn(`you need to specify uuid in lowercase (we've converted it for you now)`);
+			}
 		} else {
 			// todo check if this are only hex characters
 			uuid = valueFromHexString(str);
@@ -91,15 +95,19 @@
 		const options = {};
 
 		// add services
-		const serviceInputs = Array.from(document.querySelectorAll(`[data-filter-service]`));
-		const servicesCount = serviceInputs.length;
-		if (servicesCount.length === 1) {
-			options.services = getUuidFromString(serviceInputs[0].value);// we could also make array of just one, but this way we can test passing in a single value as well :)
-		} else {
-			options.services = [];
-			serviceInputs.forEach((input) => {
-				options.services.push(getUuidFromString(input.value));
-			});
+		let servicesArr;
+		const servicesStr = document.getElementById(`filter-services`).value;
+		if (servicesStr) {
+			servicesArr = servicesStr.split(' ');
+			
+			if (servicesArr.length === 1) {
+				options.services = getUuidFromString(servicesArr[0]);// we could also make array of just one, but this way we can test passing in a single value as well :)
+			} else {
+				options.services = [];
+				servicesArr.forEach((service) => {
+					options.services.push(getUuidFromString(service));
+				});
+			}
 		}
 
 		// add name
@@ -113,6 +121,7 @@
 		if (filterNamePrefix) {
 			options.namePrefix = filterNamePrefix;
 		}
+		console.log(options);
 
 		return options;
 	};

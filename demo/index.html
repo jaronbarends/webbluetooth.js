@@ -19,11 +19,12 @@
 				<h3>filters</h3>
 				<ul class="filters-list u-list--bare">
 					<li class="filter-type">
-						<label for="filter-service-uuid-1">service <span class="weak">(UUID)</span></label>
-						<input class="input--uuid" id="filter-service-uuid-1" type="text" value="0xffe5" data-filter-service>
-						<!-- <input class="input--uuid" id="filter-service-uuid-1" type="text" value=""> -->
+						<label for="filter-services">service <span class="weak">(UUID)</span></label>
+						<input class="input--uuid" id="filter-services" type="text" value="">
+						<!-- <input class="input--uuid" id="filter-services" type="text" value="0xffe5"> -->
 						<p class="explanation">
-							valid UUID, e.g. 'heart_rate', 0xffe5,  'c48e6067-5295-48d3-8d5c-0395f61792b1'
+							valid UUID, or space-separated series of UUIDs<br>
+							e.g. 'heart_rate', 0xffe5, 180d,  '0000180d-0000-1000-8000-00805f9b34fb'
 						</p>
 						<!--
 							It must be a valid UUID alias (e.g. 0x1234), UUID (lowercase hex characters e.g. '00001234-0000-1000-8000-00805f9b34fb'), or recognized standard name from https://www.bluetooth.com/specifications/gatt/services e.g. 'alert_notification'.
@@ -34,14 +35,14 @@
 						<label for="filter-name">name</label>
 						<input id="filter-name" type="text" value="">
 						<p class="explanation">
-							e.g. "fitbit"
+							Exact name; case sensitive. e.g. "SBrick"
 						</p>
 					</li>
 					<li class="filter-type">
 						<label for="filter-name=prefix">prefix</label>
 						<input id="filter-name-prefix" type="text" value="">
 						<p class="explanation">
-							e.g. "fit" will match "fitbit" and "fitnesscoach"
+							Starting characters of name; case insensitive e.g. "sbr" will match "SBrick"
 						</p>
 					</li>
 				</ul>
@@ -103,7 +104,27 @@
 			</fieldset>
 
 		</form>
-		
+
+		<a name="uuids"></a>
+		<h2>About UUIDs (Universally Unique IDentifiers)</h2>
+		<p class="weak">
+			Information on the internet is scattered and not always clear for my layman's knowledge. The following information is what I now think is correct ;)
+		</p>
+		<p>
+			A UUID is a 128-bit number (e.g. 0000ffe5-0000-1000-8000-00805f9b34fb) formatted as 8-4-4-4-12 hexadecimals
+		</p>
+		<p>
+			Some UUIDs are specified(?) by the Bluetooth Special Interest Group (SIG). These all end in -0000-1000-8000-00805f9b34fb. These UUIDs can also be referred to with a 32-bit or 16-bit variant, where the default part is left of. <br>
+			e.g. service 0000ffe5-0000-1000-8000-00805f9b34fb (128-bit) is the same as 0000ffe5 (32-bit) and ffe5 (16-bit). (So far I've only encountered 32-bit numbers starting with 0000; I'm not sure whether there are UUIDs that really need the full 32 bits).<br>
+			In the Web Bluetooth API, the 128-bit versions should be passed into functions as strings, the 32-bit and 16-bit versions as hexadecimal numbers, e.g. 0xffe5.
+		</p>
+		<p>
+			Some of the SIG UUIDs also have a specific standard name (see https://www.bluetooth.com/specifications/gatt/services) e.g. 'heart_rate'. These names can also be used as UUID.
+		</p>
+		<h3>Lowercase and uppercase</h3>
+		<p>
+			I've come across both uppercase and lowercase UUIDs. Web Bluetooth expects you to use lowercase only.
+		</p>
 
 	</div><!-- /.o-content-width -->
 	<script src="../src/webbluetooth.js"></script>
