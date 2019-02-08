@@ -55,6 +55,15 @@ const WebBluetooth = (function() {
 		isConnected() {
 			return this._device && this._device.gatt.connected;
 		};
+		
+
+		/**
+		* 
+		* @returns {undefined}
+		*/
+		get name() {
+			return this._device.name;
+		};
 
 
 		/**

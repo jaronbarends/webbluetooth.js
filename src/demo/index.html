@@ -13,43 +13,54 @@
 <body>
 	<div class="o-content-width">
 
+		
+
+		<div id="connection-details" class="connection-details">
+			<p>
+				<span id="connection-status" class="connection-details__status">Not connected</span>
+				<span id="connection-device-name" class="connection-details__device-name"></span>
+			</p>
+		</div>
+
 		<form>
 			<fieldset>
 				<legend>connection options</legend>
-				<h3>filters</h3>
-				<ul class="filters-list u-list--bare">
-					<li class="filter-type">
-						<label for="filter-services">service <span class="weak">(UUID)</span></label>
-						<input class="input--uuid" id="filter-services" type="text" value="">
+				<ul class="connection-options-list u-list--bare">
+					<li class="connection-option">
+						<label for="filter-services">services<span class="weak">(UUID)</span></label>
+						<input class="input--uuid" id="filter-services" type="text" value="" placeholder="e.g. heart_rate, 0x180d or 0000180d-0000-1000-8000-00805f9b34fb">
 						<!-- <input class="input--uuid" id="filter-services" type="text" value="0xffe5"> -->
 						<p class="explanation">
-							valid UUID, or space-separated series of UUIDs<br>
-							e.g. 'heart_rate', 0xffe5, 180d,  '0000180d-0000-1000-8000-00805f9b34fb'
+							a valid <a href="#about-uuids">UUID</a>, or comma-separated series of UUIDs
 						</p>
 						<!--
 							It must be a valid UUID alias (e.g. 0x1234), UUID (lowercase hex characters e.g. '00001234-0000-1000-8000-00805f9b34fb'), or recognized standard name from https://www.bluetooth.com/specifications/gatt/services e.g. 'alert_notification'.
 						-->
 						
 					</li>
-					<li class="filter-type">
+					<li class="connection-option">
 						<label for="filter-name">name</label>
-						<input id="filter-name" type="text" value="">
+						<input id="filter-name" type="text" value="" placeholder="e.g. SBrick">
 						<p class="explanation">
-							Exact name; case sensitive. e.g. "SBrick"
+							exact name; case sensitive.
 						</p>
 					</li>
-					<li class="filter-type">
+					<li class="connection-option">
 						<label for="filter-name=prefix">prefix</label>
 						<input id="filter-name-prefix" type="text" value="">
 						<p class="explanation">
-							Starting characters of name; case insensitive e.g. "sbr" will match "SBrick"
+							starting characters of name; case insensitive e.g. "sbr" will match "SBrick"
+						</p>
+					</li>
+					<li class="connection-option">
+						<label for="optional-services">optional services<span class="weak">(UUID)</span></label>
+						<input class="input--uuid" id="optional-services" type="text" value="">
+						<p class="explanation">
+							a valid <a href="#about-uuids">UUID</a>, or comma-separated series of UUIDs
 						</p>
 					</li>
 				</ul>
-				<h3>optional services</h3>
-				<ul class="optional-services-list">
 
-				</ul>
 				<button id="btn--connect" class="btn btn--connect">Connect</button>
 				<button id="btn--disconnect" class="btn btn--disconnect">Disonnect</button>
 			</fieldset>
@@ -62,7 +73,7 @@
 						<input type="text" id="write-service-uuid" value="0xffe5">
 						<!-- <input class="input--uuid" id="write-service-uuid" type="text" value="4dc591b0-857c-41de-b5f1-15abda665b0c"> -->
 						<p class="explanation">
-							hex value, e.g. 0xffe5 or ffe5<br>
+							valid <a href="#about-uuids">UUID</a><br>
 							SBrick remote: 4dc591b0-857c-41de-b5f1-15abda665b0c<br>
 							MagicBlue: 0xffe5
 						</p>
@@ -83,11 +94,10 @@
 									</li>
 									<li class="characteristic__control">
 											<label for="write-value">value</label>
-											<input type="text" id="write-value" value="56 ff 00 ff bb f0 aa">
+											<input type="text" id="write-value" class="input--write-value" value="56 ff 00 ff bb f0 aa" placeholder="e.g. 56 ff 00 ff bb f0 aa">
 											<!-- <input id="write-value" type="text" value="01 00 00 c0"> -->
 											<p class="explanation">
 												space separated Uint8Array<br>
-												e.g. 56 ff 00 ff bb f0 aa<br>
 												SBrick: 01(drive) 0-3(port) 0-1(CW/CCW) 0-255(power)<br>
 												MagicBlue: 56 RR GG BB bb f0 aa
 											</p>
@@ -105,21 +115,21 @@
 
 		</form>
 
-		<a name="uuids"></a>
+		<a name="about-uuids"></a>
 		<h2>About UUIDs (Universally Unique IDentifiers)</h2>
 		<p class="weak">
 			Information on the internet is scattered and not always clear for my layman's knowledge. The following information is what I now think is correct ;)
 		</p>
 		<p>
-			A UUID is a 128-bit number (e.g. 0000ffe5-0000-1000-8000-00805f9b34fb) formatted as 8-4-4-4-12 hexadecimals
+			A UUID is a 128-bit number (e.g. <span class="uuid">0000ffe5-0000-1000-8000-00805f9b34fb</span>) formatted as 8-4-4-4-12 hexadecimals
 		</p>
 		<p>
-			Some UUIDs are specified(?) by the Bluetooth Special Interest Group (SIG). These all end in -0000-1000-8000-00805f9b34fb. These UUIDs can also be referred to with a 32-bit or 16-bit variant, where the default part is left of. <br>
-			e.g. service 0000ffe5-0000-1000-8000-00805f9b34fb (128-bit) is the same as 0000ffe5 (32-bit) and ffe5 (16-bit). (So far I've only encountered 32-bit numbers starting with 0000; I'm not sure whether there are UUIDs that really need the full 32 bits).<br>
-			In the Web Bluetooth API, the 128-bit versions should be passed into functions as strings, the 32-bit and 16-bit versions as hexadecimal numbers, e.g. 0xffe5.
+			Some UUIDs are specified(?) by the Bluetooth Special Interest Group (SIG). These all end in <span class="uuid">-0000-1000-8000-00805f9b34fb</span>. These UUIDs also have a 32-bit or 16-bit alias, where the default part is left of. <br>
+			e.g. service <span class="uuid">0000ffe5-0000-1000-8000-00805f9b34fb</span> (128-bit) is the same as <span class="uuid">0000ffe5</span> (32-bit) and <span class="uuid">ffe5</span> (16-bit). (So far I've only encountered 32-bit numbers starting with <span class="uuid">0000</span>; I'm not sure whether there are UUIDs that really need the full 32 bits).<br>
+			In the Web Bluetooth API, the 128-bit versions should be passed into functions as strings, the 32-bit and 16-bit versions as hexadecimal numbers, e.g. <span class="uuid">0xffe5</span>.
 		</p>
 		<p>
-			Some of the SIG UUIDs also have a specific standard name (see https://www.bluetooth.com/specifications/gatt/services) e.g. 'heart_rate'. These names can also be used as UUID.
+			Some of the SIG UUIDs also have a specific standard name (see <a href="https://www.bluetooth.com/specifications/gatt/services">https://www.bluetooth.com/specifications/gatt/services</a>) e.g. 'heart_rate'. These names can also be used as UUID.
 		</p>
 		<h3>Lowercase and uppercase</h3>
 		<p>
@@ -127,7 +137,7 @@
 		</p>
 
 	</div><!-- /.o-content-width -->
-	<script src="../src/webbluetooth.js"></script>
+	<script src="../webbluetooth.js"></script>
 	<script src="js/interface.js"></script>
 </body>
 </html>

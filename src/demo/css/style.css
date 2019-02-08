@@ -1,22 +1,56 @@
 
+@font-face {
+	font-family: "source-sans";
+	src: url(SourceSansPro-Regular.otf) format('opentype');
+	font-weight: normal;
+}
+
+@font-face {
+	font-family: "source-sans";
+	src: url(SourceSansPro-Semibold.otf) format('opentype');
+	font-weight: 500;
+}
+
+@font-face {
+	font-family: "source-sans";
+	src: url(SourceSansPro-Bold.otf) format('opentype');
+	font-weight: bold;
+}
+
+
 html {
 	font-size: 62.5%;/* 10px */
 }
 
 body {
-	font-family: Arial, Helvetica, sans-serif;
+	font-family: "source-sans", Arial, Helvetica, sans-serif;
 	font-size: 1.6rem;
 	line-height: 1.5;
+	color: #333;
 }
 
-h1 {
+h1, .h1 {
 	font-size: 3.2rem;
 	font-weight: bold;
 }
 
-h2 {
+h2, .h2 {
 	font-size: 2.4rem;
 	font-weight: bold;
+}
+
+h3, .h3 {
+	font-size: 1.8rem;
+	font-weight: bold;
+}
+
+a {
+	color: cornflowerblue;
+}
+
+a:hover,
+a:focus {
+	text-decoration: none;
 }
 
 p {
@@ -45,9 +79,11 @@ form.is-disabled {
 fieldset {
 	margin-bottom: 2em;
 	border: none;
+	padding: 0;
 }
 
 legend {
+	padding: 0;
 	font-weight: bold;
 }
 
@@ -62,17 +98,36 @@ input {
 }
 
 input[type="text"] {
-	margin-bottom: 0.2em;
-	padding: 0.2em 0;
+	margin-bottom: 0.6em;
+	padding: 0 0 0.1em;
 	border: none;
 	border-bottom: 1px solid;
-	/* font-variant-numeric: tabular-nums slashed-zero; */
-	font-family: 'lucida console', 'courier new', monospace;
+	width: 58ch;
+	font-variant-numeric: tabular-nums slashed-zero;
+}
+
+input.input--write-value {
+	width: 24ch;
+}
+
+::placeholder {
+	/* color: yellow; */
+	font-style: italic;
 }
 
 .o-content-width {
 	margin: 2em auto;
-	max-width: 60em;
+	max-width: 66em;
+}
+
+.connection-details {
+	margin-bottom: 1em;
+	padding: 1em;
+	background-color: rgba(204, 0, 0, 0.2);
+}
+
+.connection-details--is-connected {
+	background-color: rgba(0, 128, 0, 0.2);
 }
 
 .btn {
@@ -105,14 +160,25 @@ input[type="text"] {
 
 .explanation,
 .weak {
-	color: #999;
+	color: #666;
 	font-weight: normal;
 	font-size: smaller;
+}
+
+.explanation a,
+.weak a {
+	color: cornflowerblue;
 }
 
 .u-list--bare {
 	list-style: none;
 }
+
+/*-- Start filters --*/
+
+	.connection-option {
+		margin-bottom: 2em;
+	}
 
 /*-- Start characteristic --*/
 
@@ -121,7 +187,7 @@ input[type="text"] {
 	}
 
 	.characteristic {
-		margin-left: 2em;
+		margin: 0 0 2em 2em;
 	}
 
 	.characteristic__controls {
@@ -140,4 +206,8 @@ input[type="text"] {
 
 .input--uuid {
 	width: 38ch;
+}
+
+.uuid {
+	font-variant-numeric: tabular-nums slashed-zero;
 }

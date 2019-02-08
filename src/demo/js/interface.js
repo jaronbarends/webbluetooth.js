@@ -9,7 +9,9 @@
 	const writeServiceInput = document.getElementById('write-service-uuid');
 	const writeCharacteristicInput = document.getElementById('write-characteristic-uuid');
 	const writeValueInput = document.getElementById('write-value');
-
+	const connectionDetailsElm = document.getElementById(`connection-details`);
+	const statusElm = document.getElementById(`connection-status`);
+	const deviceNameElm = document.getElementById(`connection-device-name`);
 
 
 	/**
@@ -96,9 +98,11 @@
 
 		// add services
 		let servicesArr;
-		const servicesStr = document.getElementById(`filter-services`).value;
+		let servicesStr = document.getElementById(`filter-services`).value;
+		console.log(servicesStr);
 		if (servicesStr) {
-			servicesArr = servicesStr.split(' ');
+			servicesStr = servicesStr.replace(' ', '');// remove any spaces
+			servicesArr = servicesStr.split(',');
 			
 			if (servicesArr.length === 1) {
 				options.services = getUuidFromString(servicesArr[0]);// we could also make array of just one, but this way we can test passing in a single value as well :)
@@ -133,7 +137,21 @@
 	* @returns {undefined}
 	*/
 	const setConnectionStatus = function() {
-		console.log('Connected:', isConnected);
+		statusElm.textContent = isConnected ? 'Connected' : 'Not connected';
+
+		let deviceNameText = '';
+		if (isConnected) {
+			connectionDetailsElm.classList.add('connection-details--is-connected');
+			const deviceName = webBluetooth.name;
+			if (deviceName) {
+				deviceNameText = `with ${deviceName}`;
+			} else {
+				deviceNameText = '(no device name specified)';
+			}
+		} else {
+			connectionDetailsElm.classList.remove('connection-details--is-connected');
+		}
+		deviceNameElm.textContent = deviceNameText;
 	};
 
 
