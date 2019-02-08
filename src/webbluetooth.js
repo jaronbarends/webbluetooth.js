@@ -55,7 +55,7 @@ const WebBluetooth = (function() {
 		isConnected() {
 			return this._device && this._device.gatt.connected;
 		};
-		
+
 
 		/**
 		* 
@@ -79,6 +79,25 @@ const WebBluetooth = (function() {
 				return await characteristic.writeValue(value)
 			} catch(error) {
 				console.warn(`Couldn't write value: `, error);
+			}
+		};
+
+
+		/**
+		* 
+		* @returns {undefined}
+		*/
+		async readValue(serviceUuid, characteristicUuid) {
+			console.log('start readValue');
+			try {
+				const characteristic = await this._getCharacteristic(characteristicUuid, serviceUuid);
+				return await characteristic.readValue()
+					.then((value) => {
+						console.log('val:', value);
+						return value;
+					});
+			} catch(error) {
+				console.warn(`Couldn't read value: `, error);
 			}
 		};
 
@@ -113,6 +132,7 @@ const WebBluetooth = (function() {
 				// this service hasn't been requested yet
 				console.log('go get service', serviceUuid,);
 				service = await this._gattServer.getPrimaryService(serviceUuid);
+				console.log('found service');
 				// cache for later use
 				this._services.set(serviceUuid, service);
 			}
@@ -135,6 +155,7 @@ const WebBluetooth = (function() {
 				// this characteristic hasn't been requested yet
 				try {
 					const service = await this._getService(serviceUuid);
+					console.log('found service');
 					characteristic = await service.getCharacteristic(characteristicUuid);
 					// cache for later use
 					this._characteristics.set(characteristicUuid, characteristic);

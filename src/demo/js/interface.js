@@ -26,8 +26,13 @@
 			isConnected = false;
 			setConnectionStatus();
 		});
+		
 		Array.from(document.querySelectorAll(`[data-btn-write]`)).forEach((btn) => {
 			btn.addEventListener('click', writeHandler);
+		});
+		
+		Array.from(document.querySelectorAll(`[data-btn-read]`)).forEach((btn) => {
+			btn.addEventListener('click', readHandler);
 		});
 	};
 
@@ -137,6 +142,8 @@
 	* @returns {undefined}
 	*/
 	const setConnectionStatus = function() {
+		const clr = isConnected ? 'green' : 'red';
+		console.log(`%cStatus: ${isConnected ? 'Connected' : 'Disconnected'}`, `color: ${clr}`);
 		statusElm.textContent = isConnected ? 'Connected' : 'Not connected';
 
 		let deviceNameText = '';
@@ -153,6 +160,31 @@
 		}
 		deviceNameElm.textContent = deviceNameText;
 	};
+
+
+	/**
+	* 
+	* @returns {undefined}
+	*/
+	const readHandler = async function(e) {
+		e.preventDefault();
+		console.log('go read');
+
+		// get service uuid
+		const serviceUuid = getUuidFromString(writeServiceInput.value);
+
+		// get characteristic uuid
+		const characteristicUuid = getUuidFromString(writeCharacteristicInput.value);
+
+		console.log('serviceUuid:', serviceUuid);
+		console.log('characteristicUuid:', characteristicUuid);
+
+		// now write value
+		const value = webBluetooth.readValue(serviceUuid, characteristicUuid);
+
+		console.log('readHandler value:', value);
+	};
+	
 
 
 	/**

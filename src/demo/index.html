@@ -47,9 +47,17 @@
 					</li>
 					<li class="connection-option">
 						<label for="filter-name=prefix">prefix</label>
-						<input id="filter-name-prefix" type="text" value="">
+
+						<!-- <input id="filter-name-prefix" type="text" value=""> -->
+
+						<!-- Thingy -->
+						<!-- <input id="filter-name-prefix" type="text" value="Thingy"> -->
+
+						<!-- SBrick -->
+						<input id="filter-name-prefix" type="text" value="SBric">
+
 						<p class="explanation">
-							starting characters of name; case insensitive e.g. "sbr" will match "SBrick"
+							starting characters of name; case sensitive
 						</p>
 					</li>
 					<li class="connection-option">
@@ -70,8 +78,16 @@
 				<ul class="services-list u-list--bare">
 					<li class="service-row">
 						<label for="write-service-uuid">service <span class="weak">(UUID)</span></label>
-						<input type="text" id="write-service-uuid" value="0xffe5">
-						<!-- <input class="input--uuid" id="write-service-uuid" type="text" value="4dc591b0-857c-41de-b5f1-15abda665b0c"> -->
+
+						<!-- Magic Blue-->
+						<!-- <input type="text" id="write-service-uuid" value="0xffe5"> -->
+
+						<!-- Thingy TES = Thingy Environment Service -->
+						<!-- <input type="text" id="write-service-uuid" value="ef680200-9b35-4933-9b10-52ffa9740042"> -->
+
+						<!-- SBrick remote service -->
+						<input class="input--uuid" id="write-service-uuid" type="text" value="4dc591b0-857c-41de-b5f1-15abda665b0c">
+
 						<p class="explanation">
 							valid <a href="#about-uuids">UUID</a><br>
 							SBrick remote: 4dc591b0-857c-41de-b5f1-15abda665b0c<br>
@@ -81,10 +97,19 @@
 						<ul class="characteristics-list u-list--bare">
 							<li class="characteristic">
 								<ul class="characteristic__controls u-list--bare">
+
 									<li class="characteristic__control">
 										<label for="write-characteristic-uuid">characteristic <span class="weak">(UUID)</span></label>
-										<input type="text" id="write-characteristic-uuid" value="0xffe9">
-										<!-- <input class="input--uuid" id="write-characteristic-uuid" type="text" value="02b8cbcc-0e25-4bda-8790-a15f53e6010f"> -->
+
+										<!-- Magic Blue -->
+										<!-- <input type="text" id="write-characteristic-uuid" value="0xffe9"> -->
+
+										<!-- Thingy temperature -->
+										<!-- <input type="text" id="write-characteristic-uuid" value="ef680201-9b35-4933-9b10-52ffa9740042"> -->
+
+										<!-- SBrick drive -->
+										<input class="input--uuid" id="write-characteristic-uuid" type="text" value="02b8cbcc-0e25-4bda-8790-a15f53e6010f">
+
 										<p class="explanation">
 											hex value<br>
 											e.g. 0xffe9 or ffe9<br>
@@ -92,10 +117,16 @@
 											MagicBlue: 0xffe9
 										</p>
 									</li>
+
 									<li class="characteristic__control">
 											<label for="write-value">value</label>
-											<input type="text" id="write-value" class="input--write-value" value="56 ff 00 ff bb f0 aa" placeholder="e.g. 56 ff 00 ff bb f0 aa">
-											<!-- <input id="write-value" type="text" value="01 00 00 c0"> -->
+
+											<!-- Magic Blue -->
+											<!-- <input type="text" id="write-value" class="input--write-value" value="56 ff 00 ff bb f0 aa" placeholder="e.g. 56 ff 00 ff bb f0 aa"> -->
+
+											<!-- SBrick drive -->
+											<input id="write-value" type="text" value="01 00 00 c0">
+
 											<p class="explanation">
 												space separated Uint8Array<br>
 												SBrick: 01(drive) 0-3(port) 0-1(CW/CCW) 0-255(power)<br>
@@ -104,7 +135,7 @@
 									</li>
 									<li class="characteristic__control characteristic__control--buttons">
 										<button class="btn btn--write" data-btn-write>write</button>
-										<button class="btn btn--read" data-btn-write>read</button>
+										<button class="btn btn--read" data-btn-read>read</button>
 									</li>
 								</ul>
 							</li>
@@ -125,7 +156,7 @@
 		</p>
 		<p>
 			Some UUIDs are specified(?) by the Bluetooth Special Interest Group (SIG). These all end in <span class="uuid">-0000-1000-8000-00805f9b34fb</span>. These UUIDs also have a 32-bit or 16-bit alias, where the default part is left of. <br>
-			e.g. service <span class="uuid">0000ffe5-0000-1000-8000-00805f9b34fb</span> (128-bit) is the same as <span class="uuid">0000ffe5</span> (32-bit) and <span class="uuid">ffe5</span> (16-bit). (So far I've only encountered 32-bit numbers starting with <span class="uuid">0000</span>; I'm not sure whether there are UUIDs that really need the full 32 bits).<br>
+			e.g. service <span class="uuid">0000ffe5-0000-1000-8000-00805f9b34fb</span> (128-bit) is the same as <span class="uuid">0000ffe5</span> (32-bit) and <span class="uuid">ffe5</span> (16-bit).<br>
 			In the Web Bluetooth API, the 128-bit versions should be passed into functions as strings, the 32-bit and 16-bit versions as hexadecimal numbers, e.g. <span class="uuid">0xffe5</span>.
 		</p>
 		<p>

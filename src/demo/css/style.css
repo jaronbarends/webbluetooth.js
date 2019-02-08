@@ -103,6 +103,7 @@ input[type="text"] {
 	border: none;
 	border-bottom: 1px solid;
 	width: 58ch;
+	width: 36ch;
 	font-variant-numeric: tabular-nums slashed-zero;
 }
 
