@@ -14,9 +14,9 @@ const WebBluetooth = (function() {
 		* @returns {boolean}
 		*/
 		async connect(options) {
-			console.log('options passed in:', options);
+			// console.log('options passed in:', options);
 			options = this._createOptionsObject(options);
-			console.log('options to pass on:', options);
+			// console.log('options to pass on:', options);
 
 			this._resetAll();
 			try {
