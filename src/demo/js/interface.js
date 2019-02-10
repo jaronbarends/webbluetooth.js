@@ -1,4 +1,3 @@
-// import {MagicBlue} from '../../src/magicblue.js';
 (function() {
 
 	'use strict';
@@ -14,18 +13,123 @@
 	const deviceNameElm = document.getElementById(`connection-device-name`);
 
 
+
+
+
+
+	const FIRMWARE_COMPATIBILITY                = 4.17;
+
+	const UUID_SERVICE_DEVICEINFORMATION        = "device_information";
+	const UUID_CHARACTERISTIC_MODELNUMBER       = "model_number_string";
+	const UUID_CHARACTERISTIC_FIRMWAREREVISION  = "firmware_revision_string";
+	const UUID_CHARACTERISTIC_HARDWAREREVISION  = "hardware_revision_string";
+	const UUID_CHARACTERISTIC_SOFTWAREREVISION  = "software_revision_string";
+	const UUID_CHARACTERISTIC_MANUFACTURERNAME  = "manufacturer_name_string";
+
+	const UUID_SERVICE_REMOTECONTROL            = "4dc591b0-857c-41de-b5f1-15abda665b0c";
+	const UUID_CHARACTERISTIC_REMOTECONTROL     = "02b8cbcc-0e25-4bda-8790-a15f53e6010f";
+	const UUID_CHARACTERISTIC_QUICKDRIVE        = "489a6ae0-c1ab-4c9c-bdb2-11d373c1b7fb";
+
+	const UUID_SERVICE_OTA                      = "1d14d6ee-fd63-4fa1-bfa4-8f47b42119f0";
+	const UUID_CHARACTERISTIC_OTACONTROL        = "f7bf3564-fb6d-4e53-88a4-5e37e0326063";
+
+	 const SERVICES = {
+		[UUID_SERVICE_DEVICEINFORMATION] : {
+			name : "Device Information",
+			characteristics : {
+				[UUID_CHARACTERISTIC_MODELNUMBER] : {
+					name : "Model Number String"
+				},
+				[UUID_CHARACTERISTIC_FIRMWAREREVISION] : {
+					name : "Firmware Revision String"
+				},
+				[UUID_CHARACTERISTIC_HARDWAREREVISION] : {
+					name : "Hardware Revision String"
+				},
+				[UUID_CHARACTERISTIC_SOFTWAREREVISION] : {
+					name : "Software Revision String"
+				},
+				[UUID_CHARACTERISTIC_MANUFACTURERNAME] : {
+					name : "Manufacturer Name String"
+				}
+			}
+		},
+		[UUID_SERVICE_REMOTECONTROL] : {
+			name : "Remote Control",
+			characteristics : {
+				[UUID_CHARACTERISTIC_REMOTECONTROL] : {
+					name : "Quick Drive"
+				},
+				[UUID_CHARACTERISTIC_QUICKDRIVE] : {
+					name : "Remote Control"
+				}
+			}
+		}
+	};
+
+
+
+
+
+
+	const presets = {
+		magicBlue: {
+			connection: {
+				services: '0xffe5'
+			},
+			services: {
+				service: '0xffe5',
+				characteristic: '0xffe9',
+				value: '56 00 ff 00 bb f0 aa'
+			}
+		},
+		sBrick: {
+			lights: {
+				connection: {
+					namePrefix: 'SBrick'
+				},
+				services: {
+					service: '4dc591b0-857c-41de-b5f1-15abda665b0c',// remote service
+					characteristic: '02b8cbcc-0e25-4bda-8790-a15f53e6010f',
+					value: '01 00 00 c0'
+				}
+			}
+		},
+		thingy: {
+			temperature: {
+				connection: {
+					namePrefix: 'Thingy'
+				},
+				services: {
+					service: 'ef680200-9b35-4933-9b10-52ffa9740042', // TES_UUID
+					characteristic: 'ef680201-9b35-4933-9b10-52ffa9740042', // TES_TEMP_UUID
+				}
+			},
+			firmware: {
+				connection: {
+					namePrefix: 'Thingy'
+				},
+				services: {
+					service: '0000fe59-0000-1000-8000-00805f9b34fb', // TES_UUID
+					characteristic: '8ec90001-f315-4f60-9fb8-838830daea50', // TES_TEMP_UUID
+				}
+			}
+		}
+	}
+	// const preset = presets.magicBlue;
+	const preset = presets.sBrick.lights;
+	// const preset = presets.thingy.temperature;
+	// const preset = presets.thingy.firmware;
+
+
 	/**
 	* init the connect btn
 	* @returns {undefined}
 	*/
 	const initButtons = function() {
 		document.getElementById('btn--connect').addEventListener('click', connectHandler);
-		document.getElementById('btn--disconnect').addEventListener('click', (e) => {
-			e.preventDefault();
-			webBluetooth.disconnect();
-			isConnected = false;
-			setConnectionStatus();
-		});
+		document.getElementById('btn--disconnect').addEventListener('click', disconnectHandler);
+		document.getElementById('btn--do-all').addEventListener('click', doAllHandler);
 		
 		Array.from(document.querySelectorAll(`[data-btn-write]`)).forEach((btn) => {
 			btn.addEventListener('click', writeHandler);
@@ -78,6 +182,105 @@
 		return uuid;
 	};
 	
+
+	/**
+	* do all
+	* @returns {undefined}
+	*/
+	const doAllHandler = async function(e) {
+		e.preventDefault();
+
+		const serviceUuid = preset.services.service;
+		const characteristicUuid = preset.services.characteristic;
+		const value = preset.services.value;
+
+		// const _device = await navigator.bluetooth.requestDevice({acceptAllDevices:true});
+		// console.log('got device');
+		// const _gattServer = await _device.gatt.connect();
+		// console.log('got server');
+		// const service = await _gattServer.getPrimaryService(serviceUuid);
+		// console.log('done');
+
+
+
+
+		// return navigator.bluetooth.requestDevice({acceptAllDevices:true})
+		// .then(device => {
+		// 	this.device = device;
+		// 	console.log('Connected to device named "' + device.name + '" with ID "' + device.id + '"');
+		// 	return device.gatt.connect();
+		// })
+		// .then(server => {
+		// 	console.log('go get');
+		// 	return server.getPrimaryService(serviceUuid)
+		// 	// return this._getAllCharacteristics(server, services);
+		// })
+		// .then(service => {
+		// 	console.log('got service');
+		// })
+		// .catch((error) => {
+		// 	console.warn('Error connecting:', error);
+		// 	throw error;
+		// });
+
+
+
+		const options  = {
+			acceptAllDevices: true,
+			optionalServices: Object.keys(SERVICES)
+		}
+
+		return navigator.bluetooth.requestDevice(options)
+			.then((device) => {
+				console.log('got device');
+				return device.gatt.connect();
+			})
+			.then(server => {
+				console.log('found server:', server);
+				// return server.getPrimaryService(0xffe5);
+				// const serviceUUIDs = ["device_information", "4dc591b0-857c-41de-b5f1-15abda665b0c"];
+				// const servicePromiseArray = serviceUUIDs.map( serviceUUID => {
+				// 	console.log('go get service ', serviceUUID);
+				// 	return server.getPrimaryService(serviceUUID);
+				// })
+				
+				// return Promise.all(servicePromiseArray);
+				zup();
+				return server.getPrimaryService(serviceUuid);
+			})
+			.then(service => {
+				console.log('found service', service);
+			})
+			.catch(e => {
+				console.warn('catch requestDevice:', e);
+			});
+
+
+
+
+
+
+		// const options = getConnectionOptions();
+		// isConnected = await webBluetooth.connect(options);
+
+		// // get service uuid
+		// const serviceUuid = getUuidFromString(writeServiceInput.value);
+
+		// // get characteristic uuid
+		// const characteristicUuid = getUuidFromString(writeCharacteristicInput.value);
+		
+		// // create Uint8Array from value
+		// const strArray = writeValueInput.value.split(' ');// array with strings like "ff", "01"
+		// const valuesFromHexArray = [];// will be filled with values like 255, 01
+		// strArray.forEach((str) => {
+		// 	valuesFromHexArray.push(valueFromHexString(str));
+		// });
+		// const writeValue = new Uint8Array(valuesFromHexArray);
+
+		// // now write value
+		// webBluetooth.writeValue(serviceUuid, characteristicUuid, writeValue);
+	};
+	
 	
 
 
@@ -88,10 +291,45 @@
 	const connectHandler = async function(e) {
 		e.preventDefault();
 		const options = getConnectionOptions();
-		// const serviceUuid = getUuidFromString(filterServiceInput.value);
 		isConnected = await webBluetooth.connect(options);
+		webBluetooth.device.addEventListener('gattserverdisconnected', disconnectedHandler);
+		// startPolling();
+
 		setConnectionStatus();
 	};
+
+	let pollTimer;
+	const startPolling = function() {
+		console.log(`connected: ${webBluetooth.isConnected()}`);
+		clearTimeout(pollTimer);
+		pollTimer = setTimeout(startPolling, 30000);
+	}
+
+
+	/**
+	* handle disconnecting device
+	* @returns {undefined}
+	*/
+	const disconnectHandler = function(e) {
+		e.preventDefault();
+		webBluetooth.disconnect();
+		isConnected = false;
+		setConnectionStatus();
+	};
+
+
+	/**
+	* handle device disconnected
+	* @returns {undefined}
+	*/
+	const disconnectedHandler = function(e) {
+		(e) => {
+			console.log('doei');
+			webBluetooth.device.removeEventListener('gattserverdisconnected', disconnectedHandler);
+		}
+	};
+	
+	
 
 
 	/**
@@ -130,6 +368,7 @@
 		if (filterNamePrefix) {
 			options.namePrefix = filterNamePrefix;
 		}
+		options.optionalServices = Object.keys(SERVICES);
 		console.log(options);
 
 		return options;
@@ -196,7 +435,6 @@
 		// stuff needs to be passed to webBluetooth like this:
 		//   const value = new Uint8Array([0x56, r, g, b, 0xbb, 0xf0, 0xaa]);
 		//   webBluetooth.writeValue(serviceUuid, characteristicUuid, value);
-		console.log('go write');
 
 		// get service uuid
 		const serviceUuid = getUuidFromString(writeServiceInput.value);
@@ -212,8 +450,43 @@
 		});
 		const writeValue = new Uint8Array(valuesFromHexArray);
 
+		console.log('call webBluetooth.writeValue');
+
 		// now write value
 		webBluetooth.writeValue(serviceUuid, characteristicUuid, writeValue);
+	};
+
+
+	/**
+	* fill a preset
+	* @returns {undefined}
+	*/
+	const setPreset = function(selector, value) {
+		const elm = document.querySelector(selector);
+		elm.value = value ? value.toString() : '';
+	};
+	
+	
+	
+	/**
+	* initialize presets for a specific device
+	* @returns {undefined}
+	*/
+	const initPresets = function() {
+		if (preset) {
+			// connection presets
+			preset.connection = preset.connection || {};
+			setPreset('#filter-services', preset.connection.services);
+			setPreset('#filter-name', preset.connection.name);
+			setPreset('#filter-name-prefix', preset.connection.namePrefix);
+			setPreset('#optional-services', preset.connection.optionalServices);
+
+			// services presets
+			preset.services = preset.services || {};
+			setPreset('#write-service-uuid', preset.services.service);
+			setPreset('#write-characteristic-uuid', preset.services.characteristic);
+			setPreset('#write-value', preset.services.value);
+		}
 	};
 	
 
@@ -228,6 +501,7 @@
 	const init = function() {
 		webBluetooth = new WebBluetooth();
 		initButtons();
+		initPresets();
 	};
 
 	// kick of the script when all dom content has loaded
