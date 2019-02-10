@@ -215,10 +215,8 @@
 	* @returns {undefined}
 	*/
 	const disconnectedHandler = function(e) {
-		(e) => {
-			console.log('doei');
-			webBluetooth.device.removeEventListener('gattserverdisconnected', disconnectedHandler);
-		}
+		console.log('doei');
+		webBluetooth.device.removeEventListener('gattserverdisconnected', disconnectedHandler);
 	};
 	
 	
@@ -250,13 +248,6 @@
 		const servicesStr = document.getElementById(`filter-services`).value;
 		if (servicesStr) {
 			options.filters = options.filters || [];
-			// servicesStr = servicesStr.replace(' ', '');// remove any spaces
-			// const servicesArr = servicesStr.split(',');
-			
-			// options.services = [];
-			// servicesArr.forEach((service) => {
-			// 	options.filters.services.push(getUuidFromString(service));
-			// });
 			options.filters.push({services: getUUIDArrayFromString(servicesStr)});
 		}
 
@@ -280,8 +271,6 @@
 			options.optionalServices = getUUIDArrayFromString(optionalServicesStr);
 		}
 		
-		console.log(options);
-
 		return options;
 	};
 	

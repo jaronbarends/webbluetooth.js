@@ -11,21 +11,23 @@ const WebBluetooth = (function() {
 		
 		/**
 		* connect with a peripheral device
-		* @param {object} [options={acceptAllDevices:true}] - Optional connection options. Possible properties: services (UUID or array of UUID's), name (string), namePrefix (string), optionalServices (UUID or array of UUID's)
-		* @param {array} options.filters - Filters to apply on returned list of devices
-		* @param {array} options.filters.services - Array of UUIDs of services the device has to advertise
-		* @param {string} options.filters.name - The name of the device
-		* @param {string} options.filters.namePrefix - The starting characters of the device name
-		* @param {array} options.optionalServices - Array of UUIDs of optional services the device has to offer
+		* for security reasons, every service you want to use, MUST be specified in either options.filters.services or options.optionalServices
+		* https://webbluetoothcg.github.io/web-bluetooth/#dom-requestdeviceoptions-optionalservices
+		* @param {object} [options={acceptAllDevices:true}]
+		* @param {array} [options.filters] - Filters to apply on returned list of devices
+		* @param {array} [options.filters.services] - Array of UUIDs of services the device has to advertise
+		* @param {string} [options.filters.name] - The name of the device
+		* @param {string} [options.filters.namePrefix] - The starting characters of the device name
+		* @param {array} [options.optionalServices] - Array of UUIDs of optional services the device has to offer
 		* @returns {boolean}
 		*/
 		async connect(options={acceptAllDevices:true}) {
-			// console.log('options passed in:', options);
-			// options.optionalServices = ['4dc591b0-857c-41de-b5f1-15abda665b0c'];
-
 			this._resetAll();
+			if (!options.filters) {
+				options.acceptAllDevices = true;
+			}
 			this._connectionOptions = options;
-			console.log(options);
+			
 			try {
 				this._device = await navigator.bluetooth.requestDevice(options);
 				window.device = this._device;
