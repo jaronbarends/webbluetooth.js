@@ -30,14 +30,9 @@
 						<label for="filter-services">services<span class="weak">(UUID)</span></label>
 						<input class="input--uuid" id="filter-services" type="text" value="" placeholder="e.g. heart_rate, 0x180d or 0000180d-0000-1000-8000-00805f9b34fb">
 
-						<!-- Magic Blue -->
-						<!-- <input class="input--uuid" id="filter-services" type="text" value="0xffe5"> -->
 						<p class="explanation">
 							a valid <a href="#about-uuids">UUID</a>, or comma-separated series of UUIDs
 						</p>
-						<!--
-							It must be a valid UUID alias (e.g. 0x1234), UUID (lowercase hex characters e.g. '00001234-0000-1000-8000-00805f9b34fb'), or recognized standard name from https://www.bluetooth.com/specifications/gatt/services e.g. 'alert_notification'.
-						-->
 						
 					</li>
 					<li class="connection-option">
@@ -49,14 +44,7 @@
 					</li>
 					<li class="connection-option">
 						<label for="filter-name=prefix">prefix</label>
-
-						<!-- <input id="filter-name-prefix" type="text" value=""> -->
-
-						<!-- Thingy -->
-						<!-- <input id="filter-name-prefix" type="text" value="Thingy"> -->
-
-						<!-- SBrick -->
-						<input id="filter-name-prefix" type="text" value="SBric">
+						<input id="filter-name-prefix" type="text" value="">
 
 						<p class="explanation">
 							starting characters of name; case sensitive
@@ -73,68 +61,34 @@
 
 				<button id="btn--connect" class="btn btn--connect">Connect</button>
 				<button id="btn--disconnect" class="btn btn--disconnect">Disonnect</button>
-				<button id="btn--do-all" class="btn">Do All</button>
 			</fieldset>
 
-			<fieldset>
+			<fieldset">
 				<legend>services</legend>
-				<ul class="services-list u-list--bare">
+				<ul id="target-services-list" class="services-list u-list--bare">
 					<li class="service-row">
-						<label for="write-service-uuid">service <span class="weak">(UUID)</span></label>
+						<label for="target-service-0-uuid">service <span class="weak" data-service-label>(valid <a href="#about-uuids">UUID</a>)</span></label>
+						<input class="input--uuid" type="text" id="target-service-0-uuid" placeholder="e.g. heart_rate, 0x180d or 0000180d-0000-1000-8000-00805f9b34fb" data-service-input>
 
-						<!-- Magic Blue-->
-						<!-- <input type="text" id="write-service-uuid" value="0xffe5"> -->
-
-						<!-- Thingy TES = Thingy Environment Service -->
-						<!-- <input type="text" id="write-service-uuid" value="ef680200-9b35-4933-9b10-52ffa9740042"> -->
-
-						<!-- SBrick remote service -->
-						<input class="input--uuid" type="text" id="write-service-uuid" value="4dc591b0-857c-41de-b5f1-15abda665b0c">
-
-						<p class="explanation">
-							valid <a href="#about-uuids">UUID</a><br>
-							SBrick remote: 4dc591b0-857c-41de-b5f1-15abda665b0c<br>
-							MagicBlue: 0xffe5
-						</p>
-
-						<ul class="characteristics-list u-list--bare">
+						<ul class="characteristics-list u-list--bare" data-characteristics-list>
 							<li class="characteristic">
 								<ul class="characteristic__controls u-list--bare">
 
 									<li class="characteristic__control">
-										<label for="write-characteristic-uuid">characteristic <span class="weak">(UUID)</span></label>
-
-										<!-- Magic Blue -->
-										<!-- <input type="text" id="write-characteristic-uuid" value="0xffe9"> -->
-
-										<!-- Thingy temperature -->
-										<!-- <input type="text" id="write-characteristic-uuid" value="ef680201-9b35-4933-9b10-52ffa9740042"> -->
-
+										<label for="target-characteristic-0-0-uuid" data-characteristic-label>characteristic <span class="weak">(valid <a href="#about-uuids">UUID</a>)</span></label>
 										<!-- SBrick drive -->
-										<input class="input--uuid" id="write-characteristic-uuid" type="text" value="02b8cbcc-0e25-4bda-8790-a15f53e6010f">
-
-										<p class="explanation">
-											hex value<br>
-											e.g. 0xffe9 or ffe9<br>
-											SBrick drive: 02b8cbcc-0e25-4bda-8790-a15f53e6010f<br>
-											MagicBlue: 0xffe9
-										</p>
+										<input class="input--uuid" id="target-characteristic-0-0-uuid" type="text" data-characteristic-input>
 									</li>
 
 									<li class="characteristic__control">
-											<label for="write-value">value</label>
+										<label for="target-characteristic-0-0-value" data-value-label>value</label>
+										<input id="target-characteristic-0-0-value" type="text" data-value-input>
 
-											<!-- Magic Blue -->
-											<!-- <input type="text" id="write-value" class="input--write-value" value="56 ff 00 ff bb f0 aa" placeholder="e.g. 56 ff 00 ff bb f0 aa"> -->
-
-											<!-- SBrick drive -->
-											<input id="write-value" type="text" value="01 00 00 c0">
-
-											<p class="explanation">
-												space separated Uint8Array<br>
-												SBrick: 01(drive) 0-3(port) 0-1(CW/CCW) 0-255(power)<br>
-												MagicBlue: 56 RR GG BB bb f0 aa
-											</p>
+										<p class="explanation">
+											space separated Uint8Array<br>
+											SBrick: 01(drive) 0-3(port) 0-1(CW/CCW) 0-255(power)<br>
+											MagicBlue: 56 RR GG BB bb f0 aa
+										</p>
 									</li>
 									<li class="characteristic__control characteristic__control--buttons">
 										<button class="btn btn--write" data-btn-write>write</button>

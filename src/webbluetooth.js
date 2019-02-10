@@ -5,6 +5,7 @@ const WebBluetooth = (function() {
 	class WebBluetooth {
 		constructor() {
 			this._connectionOptions = null;
+			this._debug = true;
 			this._resetAll();
 		}
 
@@ -28,8 +29,6 @@ const WebBluetooth = (function() {
 			}
 			this._connectionOptions = options;
 
-			console.log(options);
-			
 			try {
 				this._device = await navigator.bluetooth.requestDevice(options);
 				window.device = this._device;
@@ -40,7 +39,7 @@ const WebBluetooth = (function() {
 				}
 				return true;
 			} catch(error) {
-				console.error(`Something went wrong while connecting\n ${error.name}: ${error.message}`);
+				this._error(`Something went wrong while connecting`, error);
 				return false;
 			}
 		}
@@ -87,11 +86,10 @@ const WebBluetooth = (function() {
 		*/
 		async writeValue(serviceUuid, characteristicUuid, value) {
 			try {
-				console.log(`writeValue | call _getCharacteristic(${characteristicUuid}, ${serviceUuid})`);
 				const characteristic = await this._getCharacteristic(characteristicUuid, serviceUuid);
 				return await characteristic.writeValue(value)
 			} catch(error) {
-				console.error(`Couldn't write value:\n ${error.name}: ${error.message}`);
+				this._error(`Couldn't write value`, error);
 			}
 		};
 
@@ -101,17 +99,14 @@ const WebBluetooth = (function() {
 		* @returns {undefined}
 		*/
 		async readValue(serviceUuid, characteristicUuid) {
-			console.log('start readValue');
 			try {
 				const characteristic = await this._getCharacteristic(characteristicUuid, serviceUuid);
-				console.log('characteristic:', characteristic);
 				if (characteristic.properties.read) {
 					characteristic.oncharacteristicvaluechanged = ((e) => {
-						console.log('change');
+						// console.log('change');
 					});
 					return await characteristic.readValue()
 						.then((value) => {
-							console.log('val:', value);
 							return value;
 						});
 				} else {
@@ -141,17 +136,6 @@ const WebBluetooth = (function() {
 		};
 
 
-
-		/**
-		* 
-		* @returns {undefined}
-		*/
-		_getServicePromise() {
-			
-		};
-		
-
-
 		/**
 		* get a characteristic from the device
 		* @returns {service}
@@ -170,7 +154,7 @@ const WebBluetooth = (function() {
 					// cache for later use
 					this._services.set(serviceUuid, service);
 				} catch(error) {
-					console.error(`Error getting service\n ${error.name}: ${error.message}`);
+					this._error(`Error getting service`, error);
 					throw error;
 				}
 			}
@@ -197,7 +181,7 @@ const WebBluetooth = (function() {
 					// cache for later use
 					this._characteristics.set(characteristicUuid, characteristic);
 				} catch(error) {
-					console.error(`Error getting characteristic\n ${error.name}: ${error.message}`);
+					this._error(`Error getting characteristic`, error);
 				}
 			}
 			return characteristic;
@@ -216,53 +200,18 @@ const WebBluetooth = (function() {
 
 		//-- helper functions
 
-		/**
-		* create an options object to pass to requestDevice
-		* @param {object} params - Optional connection options. Possible properties: services (UUID or array of UUID's), name (string), namePrefix (string), optionalServices (UUID or array of UUID's)
-		* @returns {object} - object containing either filters or acceptAllDevices=true
-		*/
-		_createOptionsObject(params) {
-			const options = {};
-			if (params) {
-				if (params.services) {
-					options.filters = [
-						{ services: this._getArray(params.services) }
-					];
-				}
-				if (params.name) {
-					options.filters = options.filters || [];
-					options.filters.push({
-						name: params.name
-					});
-				}
-				if (params.namePrefix) {
-					options.filters = options.filters || [];
-					options.filters.push({
-						namePrefix: params.namePrefix
-					});
-				}
-			}
-			if (!options.filters) {
-				// no valid params were passed in
-				options.acceptAllDevices = true;
-			}
-
-			return options;
-		};
-
 
 		/**
-		* check if an object is an array or a single value. If single value, turn into array
-		* @param {any} value - An array or single value
-		* @returns {Array}
+		* log an error to the console
+		* @param {string} msg - Your custom error message
+		* @param {Error} error - The error that was thrown
+		* @returns {undefined}
 		*/
-		_getArray(value) {
-			if (!Array.isArray(value)) {
-				value = [value];
+		_error(msg, error) {
+			if (this._debug) {
+				console.error(`${msg}\n ${error.name}: ${error.message}`);
 			}
-			return value;
 		};
-
 
 	}
 

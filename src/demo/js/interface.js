@@ -5,71 +5,12 @@
 	let webBluetooth;
 	let isConnected = false;
 	const filterServiceInput = document.getElementById('filter-service-uuid');
-	const writeServiceInput = document.getElementById('write-service-uuid');
-	const writeCharacteristicInput = document.getElementById('write-characteristic-uuid');
-	const writeValueInput = document.getElementById('write-value');
+	const targetServiceInput = document.getElementById('target-service-uuid');
+	const targetCharacteristicInput = document.getElementById('target-characteristic-uuid');
+	const targetValueInput = document.getElementById('target-value');
 	const connectionDetailsElm = document.getElementById(`connection-details`);
 	const statusElm = document.getElementById(`connection-status`);
 	const deviceNameElm = document.getElementById(`connection-device-name`);
-
-
-
-
-
-
-	const FIRMWARE_COMPATIBILITY                = 4.17;
-
-	const UUID_SERVICE_DEVICEINFORMATION        = "device_information";
-	const UUID_CHARACTERISTIC_MODELNUMBER       = "model_number_string";
-	const UUID_CHARACTERISTIC_FIRMWAREREVISION  = "firmware_revision_string";
-	const UUID_CHARACTERISTIC_HARDWAREREVISION  = "hardware_revision_string";
-	const UUID_CHARACTERISTIC_SOFTWAREREVISION  = "software_revision_string";
-	const UUID_CHARACTERISTIC_MANUFACTURERNAME  = "manufacturer_name_string";
-
-	const UUID_SERVICE_REMOTECONTROL            = "4dc591b0-857c-41de-b5f1-15abda665b0c";
-	const UUID_CHARACTERISTIC_REMOTECONTROL     = "02b8cbcc-0e25-4bda-8790-a15f53e6010f";
-	const UUID_CHARACTERISTIC_QUICKDRIVE        = "489a6ae0-c1ab-4c9c-bdb2-11d373c1b7fb";
-
-	const UUID_SERVICE_OTA                      = "1d14d6ee-fd63-4fa1-bfa4-8f47b42119f0";
-	const UUID_CHARACTERISTIC_OTACONTROL        = "f7bf3564-fb6d-4e53-88a4-5e37e0326063";
-
-	 const SERVICES = {
-		[UUID_SERVICE_DEVICEINFORMATION] : {
-			name : "Device Information",
-			characteristics : {
-				[UUID_CHARACTERISTIC_MODELNUMBER] : {
-					name : "Model Number String"
-				},
-				[UUID_CHARACTERISTIC_FIRMWAREREVISION] : {
-					name : "Firmware Revision String"
-				},
-				[UUID_CHARACTERISTIC_HARDWAREREVISION] : {
-					name : "Hardware Revision String"
-				},
-				[UUID_CHARACTERISTIC_SOFTWAREREVISION] : {
-					name : "Software Revision String"
-				},
-				[UUID_CHARACTERISTIC_MANUFACTURERNAME] : {
-					name : "Manufacturer Name String"
-				}
-			}
-		},
-		[UUID_SERVICE_REMOTECONTROL] : {
-			name : "Remote Control",
-			characteristics : {
-				[UUID_CHARACTERISTIC_REMOTECONTROL] : {
-					name : "Quick Drive"
-				},
-				[UUID_CHARACTERISTIC_QUICKDRIVE] : {
-					name : "Remote Control"
-				}
-			}
-		}
-	};
-
-
-
-
 
 
 	const presets = {
@@ -77,27 +18,46 @@
 			connection: {
 				services: '0xffe5'
 			},
-			services: {
-				service: '0xffe5',
-				characteristic: '0xffe9',
-				value: '56 00 ff 00 bb f0 aa'
+			operations: {
+				services: {
+					service: '0xffe5',
+					characteristic: '0xffe9',
+					value: '56 00 ff 00 bb f0 aa'
+				}
 			}
 		},
 		sBrick: {
-			lights: {
-				connection: {
-					namePrefix: 'SBrick',
-					// optionalServices: '4dc591b0-857c-41de-b5f1-15abda665b0c'
-					optionalServices: 'device_information'
-				},
-				services: {
-					// service: '4dc591b0-857c-41de-b5f1-15abda665b0c',// remote service
-					// service: '0x180A',// device_information
-					service: 'device_information',// device_information
-					// characteristic: '02b8cbcc-0e25-4bda-8790-a15f53e6010f',
-					characteristic: 'firmware_revision_string',// 
-					value: '01 00 00 c0'
-				}
+			connection: {
+				namePrefix: 'SBrick',
+				// optionalServices: '4dc591b0-857c-41de-b5f1-15abda665b0c'
+				optionalServices: [
+					'device_information',
+					'4dc591b0-857c-41de-b5f1-15abda665b0c'
+				]
+			},
+			operations: {
+				services: [
+					{
+						uuid: '4dc591b0-857c-41de-b5f1-15abda665b0c',// remote service
+						characteristics: [
+							{
+								uuid: '02b8cbcc-0e25-4bda-8790-a15f53e6010f',// quick drive
+								exampleValue: '01 00 00 c0'
+							}
+						],
+					},
+					{
+						uuid: 'device_information',
+						characteristics: [
+							{
+								uuid: 'firmware_revision_string'
+							},
+							{
+								uuid: 'manufacturer_name_string'
+							}
+						]
+					}
+				]
 			}
 		},
 		thingy: {
@@ -105,24 +65,28 @@
 				connection: {
 					namePrefix: 'Thingy'
 				},
-				services: {
-					service: 'ef680200-9b35-4933-9b10-52ffa9740042', // TES_UUID
-					characteristic: 'ef680201-9b35-4933-9b10-52ffa9740042', // TES_TEMP_UUID
+				operations: {
+					services: {
+						service: 'ef680200-9b35-4933-9b10-52ffa9740042', // TES_UUID
+						characteristic: 'ef680201-9b35-4933-9b10-52ffa9740042', // TES_TEMP_UUID
+					}
 				}
 			},
 			firmware: {
 				connection: {
 					namePrefix: 'Thingy'
 				},
-				services: {
-					service: '0000fe59-0000-1000-8000-00805f9b34fb', // TES_UUID
-					characteristic: '8ec90001-f315-4f60-9fb8-838830daea50', // TES_TEMP_UUID
+				operations: {
+					services: {
+						service: '0000fe59-0000-1000-8000-00805f9b34fb', // TES_UUID
+						characteristic: '8ec90001-f315-4f60-9fb8-838830daea50', // TES_TEMP_UUID
+					}
 				}
 			}
 		}
 	}
 	// const preset = presets.magicBlue;
-	const preset = presets.sBrick.lights;
+	const preset = presets.sBrick;
 	// const preset = presets.thingy.temperature;
 	// const preset = presets.thingy.firmware;
 
@@ -175,7 +139,6 @@
 		let uuid = str;
 		if (str.match(/[0-9a-z]{8}-(?:[0-9a-z]{4}-){3}[0-9a-z]{12}/i)) {
 			// 128-bit: 123456ab-123a-123b-123c-1234567890ab
-			console.log('match 128');
 			uuid = str.toLowerCase();
 			if (uuid !== str) {
 				console.warn(`you need to specify uuid in lowercase (we've converted it for you now)`);
@@ -198,7 +161,6 @@
 	const connectHandler = async function(e) {
 		e.preventDefault();
 		const options = getConnectionOptions();
-		console.log('options:', options);
 		isConnected = await webBluetooth.connect(options);
 		webBluetooth.device.addEventListener('gattserverdisconnected', disconnectedHandler);
 
@@ -318,10 +280,10 @@
 		console.log('go read');
 
 		// get service uuid
-		const serviceUuid = getUuidFromString(writeServiceInput.value);
+		const serviceUuid = getUuidFromString(targetServiceInput.value);
 
 		// get characteristic uuid
-		const characteristicUuid = getUuidFromString(writeCharacteristicInput.value);
+		const characteristicUuid = getUuidFromString(targetCharacteristicInput.value);
 
 		console.log('serviceUuid:', serviceUuid);
 		console.log('characteristicUuid:', characteristicUuid);
@@ -345,13 +307,13 @@
 		//   webBluetooth.writeValue(serviceUuid, characteristicUuid, value);
 
 		// get service uuid
-		const serviceUuid = getUuidFromString(writeServiceInput.value);
+		const serviceUuid = getUuidFromString(targetServiceInput.value);
 
 		// get characteristic uuid
-		const characteristicUuid = getUuidFromString(writeCharacteristicInput.value);
+		const characteristicUuid = getUuidFromString(targetCharacteristicInput.value);
 		
 		// create Uint8Array from value
-		const strArray = writeValueInput.value.split(' ');// array with strings like "ff", "01"
+		const strArray = targetValueInput.value.split(' ');// array with strings like "ff", "01"
 		const valuesFromHexArray = [];// will be filled with values like 255, 01
 		strArray.forEach((str) => {
 			valuesFromHexArray.push(valueFromHexString(str));
@@ -365,12 +327,76 @@
 	};
 
 
+
 	/**
-	* fill a preset
+	* 
 	* @returns {undefined}
 	*/
-	const setPreset = function(selector, value) {
+	const createCharacteristicFormRow = function(firstCharRow, characteristic, iChar, iServ) {
+		let charRow;
+		if (iChar === 0) {
+			charRow = firstCharRow;
+		} else {
+			charRow = firstCharRow.cloneNode(true);
+		}
+
+		const inputId = `target-characteristic-${iServ}-${iChar}-uuid`;
+		console.log(charRow);
+		charRow.querySelector('[data-characteristic-label]').setAttribute('for', inputId);
+		const charInput = charRow.querySelector('[data-characteristic-input]');
+		charInput.id = inputId;
+		charInput.value = characteristic.uuid;
+
+		return charRow;
+	};
+	
+
+
+	/**
+	* create a form row for a service
+	* @returns {undefined}
+	*/
+	const createServiceFormRow = function(firstRow, service, iServ) {
+		let serviceRow;
+		if (iServ === 0) {
+			serviceRow = firstRow;
+		} else {
+			serviceRow = firstRow.cloneNode(true);
+		}
+		
+		const inputId = `target-service-${iServ}-uuid`;
+		serviceRow.querySelector('[data-service-label]').setAttribute('for', inputId);
+		const serviceInput = serviceRow.querySelector('[data-service-input]');
+		serviceInput.id = inputId;
+		serviceInput.value = service.uuid;
+
+		// now loop through characteristics
+		const characteristicsList = serviceRow.querySelector('[data-characteristics-list]')
+		const firstCharRow = characteristicsList.querySelector('li');
+
+		service.characteristics.forEach((characteristic, iChar) => {
+			const charRow = createCharacteristicFormRow(firstCharRow, characteristic, iChar, iServ);
+			characteristicsList.appendChild(charRow);
+		});
+		
+		console.log(serviceRow);
+		// setPresetInput('#target-service-uuid', preset.services.service);
+		// setPresetInput('#target-characteristic-uuid', preset.services.characteristic);
+		// setPresetInput('#target-value', preset.services.value);
+		return serviceRow;
+	};
+	
+
+
+	/**
+	* fill a preset input field
+	* @returns {undefined}
+	*/
+	const setPresetInput = function(selector, value) {
 		const elm = document.querySelector(selector);
+		if (Array.isArray(value)) {
+			value = value.join(', ');
+		}
 		elm.value = value ? value.toString() : '';
 	};
 	
@@ -383,20 +409,33 @@
 	const initPresets = function() {
 		if (preset) {
 			// connection presets
+			console.log(preset);
 			preset.connection = preset.connection || {};
-			setPreset('#filter-services', preset.connection.services);
-			setPreset('#filter-name', preset.connection.name);
-			setPreset('#filter-name-prefix', preset.connection.namePrefix);
-			setPreset('#optional-services', preset.connection.optionalServices);
+			setPresetInput('#filter-services', preset.connection.services);
+			setPresetInput('#filter-name', preset.connection.name);
+			setPresetInput('#filter-name-prefix', preset.connection.namePrefix);
+			setPresetInput('#optional-services', preset.connection.optionalServices);
 
-			// services presets
-			preset.services = preset.services || {};
-			setPreset('#write-service-uuid', preset.services.service);
-			setPreset('#write-characteristic-uuid', preset.services.characteristic);
-			setPreset('#write-value', preset.services.value);
+			// operations presets
+			// loop through services and create fields for characteristic and value
+			if (preset.operations) {
+				const serviceList = document.getElementById(`target-services-list`);
+				const firstRow = serviceList.querySelector('li');
+
+				preset.operations.services.forEach((service, i) => {
+					const serviceRow = createServiceFormRow(firstRow, service, i);
+					serviceList.appendChild(serviceRow);
+				});
+			}
+			
 		}
 	};
 	
+
+
+
+
+
 
 
 
