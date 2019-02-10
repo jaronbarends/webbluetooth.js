@@ -69,6 +69,7 @@
 					<li class="service-row" data-service-row>
 						<label for="target-service-0-uuid">service <span class="weak" data-service-label>(valid <a href="#about-uuids">UUID</a>)</span></label>
 						<input class="input--uuid" type="text" id="target-service-0-uuid" placeholder="e.g. heart_rate, 0x180d or 0000180d-0000-1000-8000-00805f9b34fb" data-service-input>
+						<p class="explanation" data-service-description></p>
 
 						<ul class="characteristics-list u-list--bare" data-characteristics-list>
 							<li class="characteristic" data-characteristic>
@@ -78,6 +79,7 @@
 										<label for="target-characteristic-0-0-uuid" data-characteristic-label>characteristic <span class="weak">(valid <a href="#about-uuids">UUID</a>)</span></label>
 										<!-- SBrick drive -->
 										<input class="input--uuid" id="target-characteristic-0-0-uuid" type="text" data-characteristic-input>
+										<p class="explanation" data-characteristic-description></p>
 									</li>
 
 									<li class="characteristic__control">
@@ -121,6 +123,11 @@
 
 	</div><!-- /.o-content-width -->
 	<script src="../webbluetooth.js"></script>
+
+	<script src="js/device-presets/magicBlue-presets.js"></script>
+	<script src="js/device-presets/sBrick-presets.js"></script>
+	<script src="js/device-presets/thingy-presets.js"></script>
+
 	<script src="js/interface.js"></script>
 </body>
 </html>

@@ -13,84 +13,11 @@
 	const deviceNameElm = document.getElementById(`connection-device-name`);
 
 
-	const presets = {
-		magicBlue: {
-			connection: {
-				services: '0xffe5'
-			},
-			operations: {
-				services: {
-					service: '0xffe5',
-					characteristic: '0xffe9',
-					value: '56 00 ff 00 bb f0 aa',
-					valueExplanation: '56 RR GG BB bb f0 aa'
-				}
-			}
-		},
-		sBrick: {
-			connection: {
-				namePrefix: 'SBrick',
-				// optionalServices: '4dc591b0-857c-41de-b5f1-15abda665b0c'
-				optionalServices: [
-					'device_information',
-					'4dc591b0-857c-41de-b5f1-15abda665b0c'
-				]
-			},
-			operations: {
-				services: [
-					{
-						uuid: '4dc591b0-857c-41de-b5f1-15abda665b0c',// remote service
-						characteristics: [
-							{
-								uuid: '02b8cbcc-0e25-4bda-8790-a15f53e6010f',// quick drive
-								exampleValue: '01 00 00 c0',
-								valueExplanation: '01(drive) 00-03(port) 00-01(CW/CCW) 0-ff(power)'
-							}
-						],
-					},
-					{
-						uuid: 'device_information',
-						characteristics: [
-							{
-								uuid: 'firmware_revision_string'
-							},
-							{
-								uuid: 'manufacturer_name_string'
-							}
-						]
-					}
-				]
-			}
-		},
-		thingy: {
-			temperature: {
-				connection: {
-					namePrefix: 'Thingy'
-				},
-				operations: {
-					services: {
-						service: 'ef680200-9b35-4933-9b10-52ffa9740042', // TES_UUID
-						characteristic: 'ef680201-9b35-4933-9b10-52ffa9740042', // TES_TEMP_UUID
-					}
-				}
-			},
-			firmware: {
-				connection: {
-					namePrefix: 'Thingy'
-				},
-				operations: {
-					services: {
-						service: '0000fe59-0000-1000-8000-00805f9b34fb', // TES_UUID
-						characteristic: '8ec90001-f315-4f60-9fb8-838830daea50', // TES_TEMP_UUID
-					}
-				}
-			}
-		}
-	}
+	const presets = window.devicePresets;
+	
 	// const preset = presets.magicBlue;
 	const preset = presets.sBrick;
-	// const preset = presets.thingy.temperature;
-	// const preset = presets.thingy.firmware;
+	// const preset = presets.thingy;
 
 
 	/**
@@ -281,7 +208,6 @@
 	*/
 	const readHandler = async function(e) {
 		e.preventDefault();
-		console.log('go read');
 
 		// determine which service and characteristic we're dealing with
 		const btn = e.currentTarget;
@@ -292,9 +218,6 @@
 
 		// get characteristic uuid
 		const characteristicUuid = getUuidFromString(inputValues.characteristicUuidStr);
-
-		console.log('serviceUuid:', serviceUuid);
-		console.log('characteristicUuid:', characteristicUuid);
 
 		// now write value
 		const value = await webBluetooth.readValue(serviceUuid, characteristicUuid);
@@ -348,11 +271,8 @@
 	const getInputValuesForButtonRow = function(btn) {
 
 		const charList = btn.closest('[data-characteristic]');
-		console.log(charList);
 		const characteristicUuidStr = charList.querySelector('[data-characteristic-input]').value;
 		const characteristicValueStr = charList.querySelector('[data-value-input]').value;
-		console.log(charList.querySelector('[data-value-input]'));
-		console.log('characteristicValueStr:', characteristicValueStr);
 
 		const serviceRow = charList.closest('[data-service-row]');
 		const serviceUuidStr = serviceRow.querySelector('[data-service-input]').value;
@@ -386,11 +306,11 @@
 		charRow.querySelector('[data-characteristic-label]').setAttribute('for', charInputId);
 		charInput.id = charInputId;
 		charInput.value = characteristic.uuid;
+		charRow.querySelector('[data-characteristic-description]').innerHTML = characteristic.description || '';
 
-		charRow.querySelector('[data-characteristic-label]').setAttribute('for', charInputId);
+		charRow.querySelector('[data-value-label]').setAttribute('for', valueInputId);
 		valueInput.id = valueInputId;
 		valueInput.value = characteristic.exampleValue || '';
-
 		charRow.querySelector('[data-value-explanation]').innerHTML = characteristic.valueExplanation || '';
 
 		return charRow;
@@ -415,6 +335,7 @@
 		const serviceInput = serviceRow.querySelector('[data-service-input]');
 		serviceInput.id = inputId;
 		serviceInput.value = service.uuid;
+		serviceRow.querySelector('[data-service-description]').innerHTML = service.description || '';
 
 		// now loop through characteristics
 		const characteristicsList = serviceRow.querySelector('[data-characteristics-list]')
@@ -425,7 +346,6 @@
 			characteristicsList.appendChild(charRow);
 		});
 		
-		console.log(serviceRow);
 		return serviceRow;
 	};
 	
@@ -452,7 +372,6 @@
 	const initPresets = function() {
 		if (preset) {
 			// connection presets
-			console.log(preset);
 			preset.connection = preset.connection || {};
 			setPresetInput('#filter-services', preset.connection.services);
 			setPresetInput('#filter-name', preset.connection.name);
