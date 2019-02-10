@@ -4,22 +4,28 @@ const WebBluetooth = (function() {
 
 	class WebBluetooth {
 		constructor() {
+			this._connectionOptions = null;
 			this._resetAll();
 		}
 
 		
 		/**
 		* connect with a peripheral device
-		* @param {object} options - Optional connection options. Possible properties: services (UUID or array of UUID's), name (string), namePrefix (string), optionalServices (UUID or array of UUID's)
+		* @param {object} [options={acceptAllDevices:true}] - Optional connection options. Possible properties: services (UUID or array of UUID's), name (string), namePrefix (string), optionalServices (UUID or array of UUID's)
+		* @param {array} options.filters - Filters to apply on returned list of devices
+		* @param {array} options.filters.services - Array of UUIDs of services the device has to advertise
+		* @param {string} options.filters.name - The name of the device
+		* @param {string} options.filters.namePrefix - The starting characters of the device name
+		* @param {array} options.optionalServices - Array of UUIDs of optional services the device has to offer
 		* @returns {boolean}
 		*/
-		async connect(options) {
+		async connect(options={acceptAllDevices:true}) {
 			// console.log('options passed in:', options);
-			options = this._createOptionsObject(options);
-			options.optionalServices = ['4dc591b0-857c-41de-b5f1-15abda665b0c'];
-			console.log('options to pass on:', options);
+			// options.optionalServices = ['4dc591b0-857c-41de-b5f1-15abda665b0c'];
 
 			this._resetAll();
+			this._connectionOptions = options;
+			console.log(options);
 			try {
 				this._device = await navigator.bluetooth.requestDevice(options);
 				window.device = this._device;
@@ -153,29 +159,9 @@ const WebBluetooth = (function() {
 
 			// check if we've already got this service
 			let service = this._services.get(serviceUuid);
-			console.log('_getService | this._services:', this._services);
 			if (typeof service === 'undefined') {
 				// this service hasn't been requested yet
-				console.log('_getService | go get service', serviceUuid);
 				try {
-					// console.log('_getService | this._gattServer:', this._gattServer);
-					// console.log('_getService | this._gattServer.get:', this._gattServer.getPrimaryService);
-					// return this._device.gatt.connect()
-					// 	.then(server => {
-					// 		console.log('after connect');
-					// 		console.log('connected:', server.connected);
-					// 		return server.getPrimaryService(serviceUuid)
-					// 		.then(service => {
-					// 			console.log('found service');
-					// 			this._services.set(serviceUuid, service);
-					// 		})
-					// 		.catch(e => {
-					// 			console.log('in getservice promise:', e);
-					// 		});
-					// 		// service = await this._gattServer.getPrimaryService(serviceUuid);
-					// 		console.log('found service');
-					// 	})
-
 					service = await this._gattServer.getPrimaryService(serviceUuid);
 					// cache for later use
 					this._services.set(serviceUuid, service);
@@ -197,68 +183,12 @@ const WebBluetooth = (function() {
 				throw new Error('Device not connected');
 			}
 
-
-
-
-
-
-
-
-
-			// let service = this._services.get(serviceUuid);
-			// console.log('_getService | this._services:', this._services);
-			// if (typeof service === 'undefined') {
-			// 	// this service hasn't been requested yet
-			// 	console.log('_getService | go get service', serviceUuid);
-			// 	try {
-			// 		console.log('_getService | this._gattServer:', this._gattServer);
-			// 		console.log('_getService | this._gattServer.get:', this._gattServer.getPrimaryService);
-			// 		return this._device.gatt.connect()
-			// 			.then(server => {
-			// 				console.log('after connect');
-			// 				console.log('connected:', server.connected);
-			// 				return server.getPrimaryService(serviceUuid)
-			// 				.then(service => {
-			// 					console.log('found service');
-			// 					this._services.set(serviceUuid, service);
-			// 				})
-			// 				.catch(e => {
-			// 					console.log('in getservice promise:', e);
-			// 				});
-			// 				// service = await this._gattServer.getPrimaryService(serviceUuid);
-			// 				console.log('found service');
-			// 			})
-			// 		// cache for later use
-			// 		// this._services.set(serviceUuid, service);
-			// 	} catch(e) {
-			// 		console.log('_getService | error ', e);
-			// 		throw e;
-			// 	}
-			// }
-
-
-
-
-
-
-
-
-
-
-			// zup();
-
-
 			// check if we've already got this characteristic
-			console.log(`_getCharacteristic | check for characteristic ${characteristicUuid}`);
-			console.log('_getCharacteristic | chars:', this._characteristics);
 			let characteristic = this._characteristics.get(characteristicUuid);
 			if (typeof characteristic === 'undefined') {
-				console.log('_getCharacteristic | char not fetched yet');
 				// this characteristic hasn't been requested yet
 				try {
-					console.log('_getCharacteristic | call _getService');
 					const service = await this._getService(serviceUuid);
-					console.log('_getCharacteristic | found service:', service);
 					characteristic = await service.getCharacteristic(characteristicUuid);
 					// cache for later use
 					this._characteristics.set(characteristicUuid, characteristic);
@@ -269,6 +199,7 @@ const WebBluetooth = (function() {
 			return characteristic;
 		};
 
+		
 		/**
 		* get a string with characteristic's operations and their value (read, write, notify)
 		* @param {characteristic} ch - The characteristic

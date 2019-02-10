@@ -86,7 +86,8 @@
 		sBrick: {
 			lights: {
 				connection: {
-					namePrefix: 'SBrick'
+					namePrefix: 'SBrick',
+					optionalServices: '4dc591b0-857c-41de-b5f1-15abda665b0c'
 				},
 				services: {
 					service: '4dc591b0-857c-41de-b5f1-15abda665b0c',// remote service
@@ -129,7 +130,6 @@
 	const initButtons = function() {
 		document.getElementById('btn--connect').addEventListener('click', connectHandler);
 		document.getElementById('btn--disconnect').addEventListener('click', disconnectHandler);
-		document.getElementById('btn--do-all').addEventListener('click', doAllHandler);
 		
 		Array.from(document.querySelectorAll(`[data-btn-write]`)).forEach((btn) => {
 			btn.addEventListener('click', writeHandler);
@@ -184,126 +184,18 @@
 	
 
 	/**
-	* do all
-	* @returns {undefined}
-	*/
-	const doAllHandler = async function(e) {
-		e.preventDefault();
-
-		const serviceUuid = preset.services.service;
-		const characteristicUuid = preset.services.characteristic;
-		const value = preset.services.value;
-
-		// const _device = await navigator.bluetooth.requestDevice({acceptAllDevices:true});
-		// console.log('got device');
-		// const _gattServer = await _device.gatt.connect();
-		// console.log('got server');
-		// const service = await _gattServer.getPrimaryService(serviceUuid);
-		// console.log('done');
-
-
-
-
-		// return navigator.bluetooth.requestDevice({acceptAllDevices:true})
-		// .then(device => {
-		// 	this.device = device;
-		// 	console.log('Connected to device named "' + device.name + '" with ID "' + device.id + '"');
-		// 	return device.gatt.connect();
-		// })
-		// .then(server => {
-		// 	console.log('go get');
-		// 	return server.getPrimaryService(serviceUuid)
-		// 	// return this._getAllCharacteristics(server, services);
-		// })
-		// .then(service => {
-		// 	console.log('got service');
-		// })
-		// .catch((error) => {
-		// 	console.warn('Error connecting:', error);
-		// 	throw error;
-		// });
-
-
-
-		const options  = {
-			acceptAllDevices: true,
-			optionalServices: Object.keys(SERVICES)
-		}
-
-		return navigator.bluetooth.requestDevice(options)
-			.then((device) => {
-				console.log('got device');
-				return device.gatt.connect();
-			})
-			.then(server => {
-				console.log('found server:', server);
-				// return server.getPrimaryService(0xffe5);
-				// const serviceUUIDs = ["device_information", "4dc591b0-857c-41de-b5f1-15abda665b0c"];
-				// const servicePromiseArray = serviceUUIDs.map( serviceUUID => {
-				// 	console.log('go get service ', serviceUUID);
-				// 	return server.getPrimaryService(serviceUUID);
-				// })
-				
-				// return Promise.all(servicePromiseArray);
-				zup();
-				return server.getPrimaryService(serviceUuid);
-			})
-			.then(service => {
-				console.log('found service', service);
-			})
-			.catch(e => {
-				console.warn('catch requestDevice:', e);
-			});
-
-
-
-
-
-
-		// const options = getConnectionOptions();
-		// isConnected = await webBluetooth.connect(options);
-
-		// // get service uuid
-		// const serviceUuid = getUuidFromString(writeServiceInput.value);
-
-		// // get characteristic uuid
-		// const characteristicUuid = getUuidFromString(writeCharacteristicInput.value);
-		
-		// // create Uint8Array from value
-		// const strArray = writeValueInput.value.split(' ');// array with strings like "ff", "01"
-		// const valuesFromHexArray = [];// will be filled with values like 255, 01
-		// strArray.forEach((str) => {
-		// 	valuesFromHexArray.push(valueFromHexString(str));
-		// });
-		// const writeValue = new Uint8Array(valuesFromHexArray);
-
-		// // now write value
-		// webBluetooth.writeValue(serviceUuid, characteristicUuid, writeValue);
-	};
-	
-	
-
-
-	/**
 	* handle click on connect button
 	* @returns {undefined}
 	*/
 	const connectHandler = async function(e) {
 		e.preventDefault();
 		const options = getConnectionOptions();
+		console.log('options:', options);
 		isConnected = await webBluetooth.connect(options);
 		webBluetooth.device.addEventListener('gattserverdisconnected', disconnectedHandler);
-		// startPolling();
 
 		setConnectionStatus();
 	};
-
-	let pollTimer;
-	const startPolling = function() {
-		console.log(`connected: ${webBluetooth.isConnected()}`);
-		clearTimeout(pollTimer);
-		pollTimer = setTimeout(startPolling, 30000);
-	}
 
 
 	/**
@@ -330,6 +222,21 @@
 	};
 	
 	
+	/**
+	* create an array from a string of UUIDs
+	* @returns {undefined}
+	*/
+	const getUUIDArrayFromString = function(uuidStr) {
+		uuidStr = uuidStr.replace(' ', '');// remove any spaces
+		const uuidStrArr = uuidStr.split(',');
+		const uuidArr = [];
+		uuidStrArr.forEach((uuidStr) => {
+			// convert each uuid str to a real uuid
+			uuidArr.push(getUuidFromString(uuidStr));
+		});
+
+		return uuidArr;
+	};
 
 
 	/**
@@ -340,35 +247,39 @@
 		const options = {};
 
 		// add services
-		let servicesArr;
-		let servicesStr = document.getElementById(`filter-services`).value;
-		console.log(servicesStr);
+		const servicesStr = document.getElementById(`filter-services`).value;
 		if (servicesStr) {
-			servicesStr = servicesStr.replace(' ', '');// remove any spaces
-			servicesArr = servicesStr.split(',');
+			options.filters = options.filters || [];
+			// servicesStr = servicesStr.replace(' ', '');// remove any spaces
+			// const servicesArr = servicesStr.split(',');
 			
-			if (servicesArr.length === 1) {
-				options.services = getUuidFromString(servicesArr[0]);// we could also make array of just one, but this way we can test passing in a single value as well :)
-			} else {
-				options.services = [];
-				servicesArr.forEach((service) => {
-					options.services.push(getUuidFromString(service));
-				});
-			}
+			// options.services = [];
+			// servicesArr.forEach((service) => {
+			// 	options.filters.services.push(getUuidFromString(service));
+			// });
+			options.filters.push({services: getUUIDArrayFromString(servicesStr)});
 		}
 
 		// add name
 		const filterName = document.getElementById(`filter-name`).value;
 		if (filterName) {
-			options.name = filterName;
+			options.filters = options.filters || [];
+			options.filters.push( { name: filterName } );
 		}
 
 		// add namePrefix
 		const filterNamePrefix = document.getElementById(`filter-name-prefix`).value;
 		if (filterNamePrefix) {
-			options.namePrefix = filterNamePrefix;
+			options.filters = options.filters || [];
+			options.filters.push( { namePrefix: filterNamePrefix } );
 		}
-		options.optionalServices = Object.keys(SERVICES);
+		
+		// add optional services
+		const optionalServicesStr = document.getElementById(`optional-services`).value;
+		if (optionalServicesStr) {
+			options.optionalServices = getUUIDArrayFromString(optionalServicesStr);
+		}
+		
 		console.log(options);
 
 		return options;
