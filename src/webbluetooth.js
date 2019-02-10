@@ -27,6 +27,8 @@ const WebBluetooth = (function() {
 				options.acceptAllDevices = true;
 			}
 			this._connectionOptions = options;
+
+			console.log(options);
 			
 			try {
 				this._device = await navigator.bluetooth.requestDevice(options);
@@ -38,7 +40,7 @@ const WebBluetooth = (function() {
 				}
 				return true;
 			} catch(error) {
-				console.warn(`Something went wrong while connecting:`, error);
+				console.error(`Something went wrong while connecting\n ${error.name}: ${error.message}`);
 				return false;
 			}
 		}
@@ -89,7 +91,7 @@ const WebBluetooth = (function() {
 				const characteristic = await this._getCharacteristic(characteristicUuid, serviceUuid);
 				return await characteristic.writeValue(value)
 			} catch(error) {
-				console.warn(`Couldn't write value: `, error);
+				console.error(`Couldn't write value:\n ${error.name}: ${error.message}`);
 			}
 		};
 
@@ -167,9 +169,9 @@ const WebBluetooth = (function() {
 					service = await this._gattServer.getPrimaryService(serviceUuid);
 					// cache for later use
 					this._services.set(serviceUuid, service);
-				} catch(e) {
-					console.log('_getService | error ', e);
-					throw e;
+				} catch(error) {
+					console.error(`Error getting service\n ${error.name}: ${error.message}`);
+					throw error;
 				}
 			}
 			return service;
@@ -195,7 +197,7 @@ const WebBluetooth = (function() {
 					// cache for later use
 					this._characteristics.set(characteristicUuid, characteristic);
 				} catch(error) {
-					console.warn('Error getting characteristic:', error);
+					console.error(`Error getting characteristic\n ${error.name}: ${error.message}`);
 				}
 			}
 			return characteristic;

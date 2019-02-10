@@ -87,11 +87,15 @@
 			lights: {
 				connection: {
 					namePrefix: 'SBrick',
-					optionalServices: '4dc591b0-857c-41de-b5f1-15abda665b0c'
+					// optionalServices: '4dc591b0-857c-41de-b5f1-15abda665b0c'
+					optionalServices: 'device_information'
 				},
 				services: {
-					service: '4dc591b0-857c-41de-b5f1-15abda665b0c',// remote service
-					characteristic: '02b8cbcc-0e25-4bda-8790-a15f53e6010f',
+					// service: '4dc591b0-857c-41de-b5f1-15abda665b0c',// remote service
+					// service: '0x180A',// device_information
+					service: 'device_information',// device_information
+					// characteristic: '02b8cbcc-0e25-4bda-8790-a15f53e6010f',
+					characteristic: 'firmware_revision_string',// 
 					value: '01 00 00 c0'
 				}
 			}
@@ -168,17 +172,21 @@
 	* @returns {string | number}
 	*/
 	const getUuidFromString = function(str) {
-		let uuid;
+		let uuid = str;
 		if (str.match(/[0-9a-z]{8}-(?:[0-9a-z]{4}-){3}[0-9a-z]{12}/i)) {
+			// 128-bit: 123456ab-123a-123b-123c-1234567890ab
+			console.log('match 128');
 			uuid = str.toLowerCase();
 			if (uuid !== str) {
 				console.warn(`you need to specify uuid in lowercase (we've converted it for you now)`);
 			}
-		} else {
-			// todo check if this are only hex characters
+		} else if (str.match(/^(0x)?([0-9a-f]{4}){1,2}$/i)) {
+			// 16-bit or 32-bit: one of 0x12ab, 12ab, 0x12ab34cd, 12ab34cd
 			uuid = valueFromHexString(str);
+		} else {
+			// it's a normal string, like 'heart_rate' - leave it as is.
 		}
-		// todo add possibility for string
+		
 		return uuid;
 	};
 	
