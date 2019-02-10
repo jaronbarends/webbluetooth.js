@@ -66,12 +66,12 @@
 			<fieldset">
 				<legend>services</legend>
 				<ul id="target-services-list" class="services-list u-list--bare">
-					<li class="service-row">
+					<li class="service-row" data-service-row>
 						<label for="target-service-0-uuid">service <span class="weak" data-service-label>(valid <a href="#about-uuids">UUID</a>)</span></label>
 						<input class="input--uuid" type="text" id="target-service-0-uuid" placeholder="e.g. heart_rate, 0x180d or 0000180d-0000-1000-8000-00805f9b34fb" data-service-input>
 
 						<ul class="characteristics-list u-list--bare" data-characteristics-list>
-							<li class="characteristic">
+							<li class="characteristic" data-characteristic>
 								<ul class="characteristic__controls u-list--bare">
 
 									<li class="characteristic__control">
@@ -81,14 +81,9 @@
 									</li>
 
 									<li class="characteristic__control">
-										<label for="target-characteristic-0-0-value" data-value-label>value</label>
+										<label for="target-characteristic-0-0-value" data-value-label>value <span class="weak">(space separated Uint8Array)</span></label>
 										<input id="target-characteristic-0-0-value" type="text" data-value-input>
-
-										<p class="explanation">
-											space separated Uint8Array<br>
-											SBrick: 01(drive) 0-3(port) 0-1(CW/CCW) 0-255(power)<br>
-											MagicBlue: 56 RR GG BB bb f0 aa
-										</p>
+										<p class="explanation" data-value-explanation></p>
 									</li>
 									<li class="characteristic__control characteristic__control--buttons">
 										<button class="btn btn--write" data-btn-write>write</button>

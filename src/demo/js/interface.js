@@ -22,7 +22,8 @@
 				services: {
 					service: '0xffe5',
 					characteristic: '0xffe9',
-					value: '56 00 ff 00 bb f0 aa'
+					value: '56 00 ff 00 bb f0 aa',
+					valueExplanation: '56 RR GG BB bb f0 aa'
 				}
 			}
 		},
@@ -42,7 +43,8 @@
 						characteristics: [
 							{
 								uuid: '02b8cbcc-0e25-4bda-8790-a15f53e6010f',// quick drive
-								exampleValue: '01 00 00 c0'
+								exampleValue: '01 00 00 c0',
+								valueExplanation: '01(drive) 00-03(port) 00-01(CW/CCW) 0-ff(power)'
 							}
 						],
 					},
@@ -96,9 +98,11 @@
 	* @returns {undefined}
 	*/
 	const initButtons = function() {
+		// connection buttons are one-offs
 		document.getElementById('btn--connect').addEventListener('click', connectHandler);
 		document.getElementById('btn--disconnect').addEventListener('click', disconnectHandler);
 		
+		// buttons for operations may occur multiple times
 		Array.from(document.querySelectorAll(`[data-btn-write]`)).forEach((btn) => {
 			btn.addEventListener('click', writeHandler);
 		});
@@ -279,17 +283,21 @@
 		e.preventDefault();
 		console.log('go read');
 
+		// determine which service and characteristic we're dealing with
+		const btn = e.currentTarget;
+		const inputValues = getInputValuesForButtonRow(btn)
+
 		// get service uuid
-		const serviceUuid = getUuidFromString(targetServiceInput.value);
+		const serviceUuid = getUuidFromString(inputValues.serviceUuidStr);
 
 		// get characteristic uuid
-		const characteristicUuid = getUuidFromString(targetCharacteristicInput.value);
+		const characteristicUuid = getUuidFromString(inputValues.characteristicUuidStr);
 
 		console.log('serviceUuid:', serviceUuid);
 		console.log('characteristicUuid:', characteristicUuid);
 
 		// now write value
-		const value = webBluetooth.readValue(serviceUuid, characteristicUuid);
+		const value = await webBluetooth.readValue(serviceUuid, characteristicUuid);
 
 		console.log('readHandler value:', value);
 	};
@@ -297,7 +305,7 @@
 
 
 	/**
-	* 
+	* handle click on write button
 	* @returns {undefined}
 	*/
 	const writeHandler = async function(e) {
@@ -306,21 +314,23 @@
 		//   const value = new Uint8Array([0x56, r, g, b, 0xbb, 0xf0, 0xaa]);
 		//   webBluetooth.writeValue(serviceUuid, characteristicUuid, value);
 
+		// determine which service and characteristic we're dealing with
+		const btn = e.currentTarget;
+		const inputValues = getInputValuesForButtonRow(btn)
+
 		// get service uuid
-		const serviceUuid = getUuidFromString(targetServiceInput.value);
+		const serviceUuid = getUuidFromString(inputValues.serviceUuidStr);
 
 		// get characteristic uuid
-		const characteristicUuid = getUuidFromString(targetCharacteristicInput.value);
+		const characteristicUuid = getUuidFromString(inputValues.characteristicUuidStr);
 		
 		// create Uint8Array from value
-		const strArray = targetValueInput.value.split(' ');// array with strings like "ff", "01"
+		const strArray = inputValues.characteristicValueStr.split(' ');// array with strings like "ff", "01"
 		const valuesFromHexArray = [];// will be filled with values like 255, 01
 		strArray.forEach((str) => {
 			valuesFromHexArray.push(valueFromHexString(str));
 		});
 		const writeValue = new Uint8Array(valuesFromHexArray);
-
-		console.log('call webBluetooth.writeValue');
 
 		// now write value
 		webBluetooth.writeValue(serviceUuid, characteristicUuid, writeValue);
@@ -328,8 +338,36 @@
 
 
 
+	//-- Start helper functions for form
+
+
 	/**
-	* 
+	* get appropriate values when clicking on button
+	* @returns {undefined}
+	*/
+	const getInputValuesForButtonRow = function(btn) {
+
+		const charList = btn.closest('[data-characteristic]');
+		console.log(charList);
+		const characteristicUuidStr = charList.querySelector('[data-characteristic-input]').value;
+		const characteristicValueStr = charList.querySelector('[data-value-input]').value;
+		console.log(charList.querySelector('[data-value-input]'));
+		console.log('characteristicValueStr:', characteristicValueStr);
+
+		const serviceRow = charList.closest('[data-service-row]');
+		const serviceUuidStr = serviceRow.querySelector('[data-service-input]').value;
+
+		return {
+			characteristicUuidStr,
+			characteristicValueStr,
+			serviceUuidStr
+		};
+	};
+	
+
+
+	/**
+	* create a form row for a characteristic
 	* @returns {undefined}
 	*/
 	const createCharacteristicFormRow = function(firstCharRow, characteristic, iChar, iServ) {
@@ -340,12 +378,20 @@
 			charRow = firstCharRow.cloneNode(true);
 		}
 
-		const inputId = `target-characteristic-${iServ}-${iChar}-uuid`;
-		console.log(charRow);
-		charRow.querySelector('[data-characteristic-label]').setAttribute('for', inputId);
+		const charInputId = `target-characteristic-${iServ}-${iChar}-uuid`;
+		const valueInputId = `target-characteristic-${iServ}-${iChar}-value`;
 		const charInput = charRow.querySelector('[data-characteristic-input]');
-		charInput.id = inputId;
+		const valueInput = charRow.querySelector('[data-value-input]');
+		
+		charRow.querySelector('[data-characteristic-label]').setAttribute('for', charInputId);
+		charInput.id = charInputId;
 		charInput.value = characteristic.uuid;
+
+		charRow.querySelector('[data-characteristic-label]').setAttribute('for', charInputId);
+		valueInput.id = valueInputId;
+		valueInput.value = characteristic.exampleValue || '';
+
+		charRow.querySelector('[data-value-explanation]').innerHTML = characteristic.valueExplanation || '';
 
 		return charRow;
 	};
@@ -380,9 +426,6 @@
 		});
 		
 		console.log(serviceRow);
-		// setPresetInput('#target-service-uuid', preset.services.service);
-		// setPresetInput('#target-characteristic-uuid', preset.services.characteristic);
-		// setPresetInput('#target-value', preset.services.value);
 		return serviceRow;
 	};
 	
@@ -447,8 +490,8 @@
 	*/
 	const init = function() {
 		webBluetooth = new WebBluetooth();
-		initButtons();
 		initPresets();
+		initButtons();
 	};
 
 	// kick of the script when all dom content has loaded
