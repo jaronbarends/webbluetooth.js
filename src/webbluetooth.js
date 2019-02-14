@@ -35,7 +35,7 @@ const WebBluetooth = (function() {
 				this._gattServer = await this._device.gatt.connect();
 				if (options.filter && options.filter.services) {
 					// let's proactively get these services
-					// await this._getService(serviceUuid);
+					// await this.getService(serviceUuid);
 				}
 				return true;
 			} catch(error) {
@@ -86,7 +86,7 @@ const WebBluetooth = (function() {
 		*/
 		async writeValue(serviceUuid, characteristicUuid, value) {
 			try {
-				const characteristic = await this._getCharacteristic(characteristicUuid, serviceUuid);
+				const characteristic = await this.getCharacteristic(characteristicUuid, serviceUuid);
 				return await characteristic.writeValue(value)
 			} catch(error) {
 				this._error(`Couldn't write value`, error);
@@ -100,7 +100,7 @@ const WebBluetooth = (function() {
 		*/
 		async readValue(serviceUuid, characteristicUuid) {
 			try {
-				const characteristic = await this._getCharacteristic(characteristicUuid, serviceUuid);
+				const characteristic = await this.getCharacteristic(characteristicUuid, serviceUuid);
 				if (characteristic.properties.read) {
 					characteristic.oncharacteristicvaluechanged = ((e) => {
 						// console.log('change');
@@ -122,25 +122,11 @@ const WebBluetooth = (function() {
 		}
 
 
-		//-- Start private functions ------------------
-
-		/**
-		* reset all variables
-		* @returns {undefined}
-		*/
-		_resetAll() {
-			this._device = null;
-			this._gattServer = null;
-			this._services = new Map();// all services we've connected with
-			this._characteristics = new Map();// all characteristics we've found
-		};
-
-
 		/**
 		* get a characteristic from the device
 		* @returns {service}
 		*/
-		async _getService(serviceUuid) {
+		async getService(serviceUuid) {
 			if (!this.isConnected()) {
 				throw new Error('Device not connected');
 			}
@@ -166,7 +152,7 @@ const WebBluetooth = (function() {
 		* get a characteristic from the device
 		* @returns {characteristic}
 		*/
-		async _getCharacteristic(characteristicUuid, serviceUuid) {
+		async getCharacteristic(characteristicUuid, serviceUuid) {
 			if (!this.isConnected()) {
 				throw new Error('Device not connected');
 			}
@@ -176,15 +162,30 @@ const WebBluetooth = (function() {
 			if (typeof characteristic === 'undefined') {
 				// this characteristic hasn't been requested yet
 				try {
-					const service = await this._getService(serviceUuid);
+					const service = await this.getService(serviceUuid);
 					characteristic = await service.getCharacteristic(characteristicUuid);
 					// cache for later use
 					this._characteristics.set(characteristicUuid, characteristic);
 				} catch(error) {
 					this._error(`Error getting characteristic`, error);
+					throw error;
 				}
 			}
 			return characteristic;
+		};
+
+
+		//-- Start private functions ------------------
+
+		/**
+		* reset all variables
+		* @returns {undefined}
+		*/
+		_resetAll() {
+			this._device = null;
+			this._gattServer = null;
+			this._services = new Map();// all services we've connected with
+			this._characteristics = new Map();// all characteristics we've found
 		};
 
 		

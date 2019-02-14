@@ -12,12 +12,12 @@
 	const statusElm = document.getElementById(`connection-status`);
 	const deviceNameElm = document.getElementById(`connection-device-name`);
 
-
 	const presets = window.devicePresets;
+	let preset = null;
 	
-	// const preset = presets.magicBlue;
-	const preset = presets.sBrick;
-	// const preset = presets.thingy;
+	// preset = presets.magicBlue;
+	preset = presets.sBrick;
+	// preset = presets.thingy;
 
 
 	/**
@@ -44,7 +44,7 @@
 	* get integer value from string representing hex value
 	* @returns {number}
 	*/
-	const valueFromHexString = function(hexString) {
+	const getValueFromHexString = function(hexString) {
 		hexString = hexString || 0;
 		if (hexString) {
 			if (hexString.indexOf('0x') === -1) {
@@ -76,7 +76,7 @@
 			}
 		} else if (str.match(/^(0x)?([0-9a-f]{4}){1,2}$/i)) {
 			// 16-bit or 32-bit: one of 0x12ab, 12ab, 0x12ab34cd, 12ab34cd
-			uuid = valueFromHexString(str);
+			uuid = getValueFromHexString(str);
 		} else {
 			// it's a normal string, like 'heart_rate' - leave it as is.
 		}
@@ -93,8 +93,10 @@
 		e.preventDefault();
 		const options = getConnectionOptions();
 		isConnected = await webBluetooth.connect(options);
-		webBluetooth.device.addEventListener('gattserverdisconnected', disconnectedHandler);
-
+		if (isConnected) {
+			setAllCharacteristicPermissions();
+			webBluetooth.device.addEventListener('gattserverdisconnected', disconnectedHandler);
+		}
 		setConnectionStatus();
 	};
 
@@ -251,7 +253,7 @@
 		const strArray = inputValues.characteristicValueStr.split(' ');// array with strings like "ff", "01"
 		const valuesFromHexArray = [];// will be filled with values like 255, 01
 		strArray.forEach((str) => {
-			valuesFromHexArray.push(valueFromHexString(str));
+			valuesFromHexArray.push(getValueFromHexString(str));
 		});
 		const writeValue = new Uint8Array(valuesFromHexArray);
 
@@ -283,6 +285,60 @@
 			serviceUuidStr
 		};
 	};
+
+
+
+	/**
+	* enable the right buttons for all characteristics' permissions
+	* @returns {undefined}
+	*/
+	const setAllCharacteristicPermissions = function() {
+		const serviceRows = Array.from(document.querySelectorAll(`[data-service-row]`));
+		serviceRows.forEach((serviceRow) => {
+			const serviceUUIDString = serviceRow.querySelector([`[data-service-input]`]).value;
+			if (serviceUUIDString) {
+				const characteristicRows = Array.from(serviceRow.querySelectorAll(`[data-characteristic]`));
+				characteristicRows.forEach((charRow) => {
+					const charUUIDString = charRow.querySelector(`[data-characteristic-input]`).value;
+					if (charUUIDString) {
+						setCharacteristicPermissions(charUUIDString, charRow, serviceUUIDString);
+					}
+				})
+			}
+		});
+	};
+
+
+	/**
+	* enable the right buttons for a single characteristic's permissions
+	* @returns {undefined}
+	*/
+	const setCharacteristicPermissions = function(charUUIDString, charRow, serviceUUIDString) {
+		const serviceUUID = getUuidFromString(serviceUUIDString);
+		const charUUID = getUuidFromString(charUUIDString);
+
+		webBluetooth.getCharacteristic(charUUID, serviceUUID)
+			.then((characteristic) => {
+				setCharacteristicButton(charRow.querySelector(`[data-btn-write]`), characteristic.properties.write);
+				setCharacteristicButton(charRow.querySelector(`[data-btn-read]`), characteristic.properties.read);
+			});
+	};
+
+
+	/**
+	* enable or disable a characteristic's button
+	* @returns {undefined}
+	*/
+	const setCharacteristicButton  = function(btn, status) {
+		if (status) {
+			btn.removeAttribute('disabled');
+		} else {
+			btn.setAttribute('disabled', 'disabled');
+		}
+	};
+	
+	
+	
 	
 
 
@@ -290,7 +346,7 @@
 	* create a form row for a characteristic
 	* @returns {undefined}
 	*/
-	const createCharacteristicFormRow = function(firstCharRow, characteristic, iChar, iServ) {
+	const createCharacteristicFormRow = function(firstCharRow, characteristicObj, serviceUUID, iChar, iServ) {
 		let charRow;
 		if (iChar === 0) {
 			charRow = firstCharRow;
@@ -305,13 +361,13 @@
 		
 		charRow.querySelector('[data-characteristic-label]').setAttribute('for', charInputId);
 		charInput.id = charInputId;
-		charInput.value = characteristic.uuid;
-		charRow.querySelector('[data-characteristic-description]').innerHTML = characteristic.description || '';
+		charInput.value = characteristicObj.uuid;
+		charRow.querySelector('[data-characteristic-description]').innerHTML = characteristicObj.description || '';
 
 		charRow.querySelector('[data-value-label]').setAttribute('for', valueInputId);
 		valueInput.id = valueInputId;
-		valueInput.value = characteristic.exampleValue || '';
-		charRow.querySelector('[data-value-explanation]').innerHTML = characteristic.valueExplanation || '';
+		valueInput.value = characteristicObj.exampleValue || '';
+		charRow.querySelector('[data-value-explanation]').innerHTML = characteristicObj.valueExplanation || '';
 
 		return charRow;
 	};
@@ -329,7 +385,7 @@
 		} else {
 			serviceRow = firstRow.cloneNode(true);
 		}
-		
+
 		const inputId = `target-service-${iServ}-uuid`;
 		serviceRow.querySelector('[data-service-label]').setAttribute('for', inputId);
 		const serviceInput = serviceRow.querySelector('[data-service-input]');
@@ -342,7 +398,7 @@
 		const firstCharRow = characteristicsList.querySelector('li');
 
 		service.characteristics.forEach((characteristic, iChar) => {
-			const charRow = createCharacteristicFormRow(firstCharRow, characteristic, iChar, iServ);
+			const charRow = createCharacteristicFormRow(firstCharRow, characteristic, service.uuid, iChar, iServ);
 			characteristicsList.appendChild(charRow);
 		});
 		

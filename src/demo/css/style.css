@@ -53,6 +53,14 @@ a:focus {
 	text-decoration: none;
 }
 
+button {
+	cursor: pointer;
+}
+
+.button[disabled] {
+	opacity: 0.5;
+}
+
 p {
 	margin: 0 0 1em;
 }
@@ -79,7 +87,7 @@ form.is-disabled {
 fieldset {
 	margin-bottom: 2em;
 	border: none;
-	padding: 0;
+	padding: 1em;
 }
 
 legend {
@@ -92,12 +100,16 @@ label {
 	font-weight: bold;
 }
 
-input {
+input,
+textarea {
+	background-color: transparent;
 	vertical-align: middle;
 	font: inherit;
+	line-height: inherit;
 }
 
-input[type="text"] {
+input[type="text"],
+textarea {
 	margin-bottom: 0.6em;
 	padding: 0 0 0.1em;
 	border: none;
@@ -134,9 +146,14 @@ input.input--write-value {
 .btn {
 	color: white;
 	border: none;
-	padding: 0.5em 1em;
+	padding: 0.3em 1em;
 	background: cornflowerblue;
 	font: inherit;
+}
+
+.btn:hover,
+.btn:focus {
+	box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
 
 .btn[disabled] {
@@ -177,8 +194,31 @@ input.input--write-value {
 
 /*-- Start filters --*/
 
+	.connection-options,
+	.service-row {
+		background: #f8f8f8;
+		padding: 1em;
+	}
+
+	.service-row {
+		margin: 0 -1em 1em;
+	}
+
 	.connection-option {
 		margin-bottom: 2em;
+	}
+
+	.optional-services {
+		--lh: 1.5em;
+		padding-top: 2px;
+		min-height: 4.3em;
+		background: repeating-linear-gradient(
+			to bottom,
+			transparent 0,
+			transparent calc(var(--lh) - 1px),
+			#999 0,
+			transparent var(--lh)
+		);
 	}
 
 /*-- Start characteristic --*/
@@ -188,7 +228,7 @@ input.input--write-value {
 	}
 
 	.characteristic {
-		margin: 0 0 2em 2em;
+		margin: 0 0 2em;
 	}
 
 	.characteristic__controls {
