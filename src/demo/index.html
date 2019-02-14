@@ -13,12 +13,7 @@
 <body>
 	<div class="o-content-width">
 
-		<div id="connection-details" class="connection-details">
-			<p>
-				<span id="connection-status" class="connection-details__status">Not connected</span>
-				<span id="connection-device-name" class="connection-details__device-name"></span>
-			</p>
-		</div>
+		
 
 		<form>
 			<fieldset class="connection-options">
@@ -55,8 +50,17 @@
 					</li>
 				</ul>
 
+				<div>
+					<div id="connection-details" class="connection-details">
+						<p>
+							<span id="connection-status" class="connection-details__status">Not connected</span>
+							<span id="connection-device-name" class="connection-details__device-name"></span>
+						</p>
+					</div>
+				</div>
+				
 				<button id="btn--connect" class="btn btn--connect">Connect</button>
-				<button id="btn--disconnect" class="btn btn--disconnect">Disonnect</button>
+				<button id="btn--disconnect" class="btn btn--disconnect" disabled>Disonnect</button>
 			</fieldset>
 
 			<fieldset>

@@ -12,6 +12,9 @@
 	const statusElm = document.getElementById(`connection-status`);
 	const deviceNameElm = document.getElementById(`connection-device-name`);
 
+	const connectBtn = document.getElementById('btn--connect');
+	const disconnectBtn = document.getElementById('btn--disconnect');
+
 	const presets = window.devicePresets;
 	let preset = null;
 	
@@ -26,8 +29,8 @@
 	*/
 	const initButtons = function() {
 		// connection buttons are one-offs
-		document.getElementById('btn--connect').addEventListener('click', connectHandler);
-		document.getElementById('btn--disconnect').addEventListener('click', disconnectHandler);
+		connectBtn.addEventListener('click', connectHandler);
+		disconnectBtn.addEventListener('click', disconnectHandler);
 		
 		// buttons for operations may occur multiple times
 		Array.from(document.querySelectorAll(`[data-btn-write]`)).forEach((btn) => {
@@ -92,7 +95,8 @@
 	const connectHandler = async function(e) {
 		e.preventDefault();
 		const options = getConnectionOptions();
-		isConnected = await webBluetooth.connect(options);
+		await webBluetooth.connect(options);
+		const isConnected = webBluetooth.isConnected;
 		if (isConnected) {
 			setAllCharacteristicPermissions();
 			webBluetooth.device.addEventListener('gattserverdisconnected', disconnectedHandler);
@@ -108,7 +112,6 @@
 	const disconnectHandler = function(e) {
 		e.preventDefault();
 		webBluetooth.disconnect();
-		isConnected = false;
 		setConnectionStatus();
 	};
 
@@ -118,8 +121,8 @@
 	* @returns {undefined}
 	*/
 	const disconnectedHandler = function(e) {
-		console.log('doei');
 		webBluetooth.device.removeEventListener('gattserverdisconnected', disconnectedHandler);
+		setConnectionStatus();
 	};
 	
 	
@@ -184,8 +187,9 @@
 	* @returns {undefined}
 	*/
 	const setConnectionStatus = function() {
-		const clr = isConnected ? 'green' : 'red';
-		console.log(`%cStatus: ${isConnected ? 'Connected' : 'Disconnected'}`, `color: ${clr}`);
+		const isConnected = webBluetooth.isConnected;
+		const color = isConnected ? 'green' : 'red';
+		console.log(`%cStatus: ${isConnected ? 'Connected' : 'Disconnected'}`, `color: ${color}`);
 		statusElm.textContent = isConnected ? 'Connected' : 'Not connected';
 
 		let deviceNameText = '';
@@ -193,7 +197,8 @@
 			connectionDetailsElm.classList.add('connection-details--is-connected');
 			const deviceName = webBluetooth.name;
 			if (deviceName) {
-				deviceNameText = `with ${deviceName}`;
+				statusElm.textContent += ' with';
+				deviceNameText = deviceName;
 			} else {
 				deviceNameText = '(no device name specified)';
 			}
@@ -201,6 +206,9 @@
 			connectionDetailsElm.classList.remove('connection-details--is-connected');
 		}
 		deviceNameElm.textContent = deviceNameText;
+
+		setButtonState(connectBtn, !isConnected);
+		setButtonState(disconnectBtn, isConnected);
 	};
 
 
@@ -213,7 +221,8 @@
 
 		// determine which service and characteristic we're dealing with
 		const btn = e.currentTarget;
-		const inputValues = getInputValuesForButtonRow(btn)
+		const inputValues = getInputValuesForButtonRow(btn);
+		const valueInput = btn.closest('[data-characteristic]').querySelector('[data-value-input');
 
 		// get service uuid
 		const serviceUuid = getUuidFromString(inputValues.serviceUuidStr);
@@ -222,9 +231,12 @@
 		const characteristicUuid = getUuidFromString(inputValues.characteristicUuidStr);
 
 		// now write value
-		const value = await webBluetooth.readValue(serviceUuid, characteristicUuid);
+		const dataView = await webBluetooth.readValue(serviceUuid, characteristicUuid);
 
-		console.log('readHandler value:', value);
+		const uint8Array = new Uint8Array(dataView.buffer);
+		const text = webBluetooth.util.dataViewToText(dataView);
+		valueInput.value = `${text} [ ${uint8Array.join(' ')} ]`;
+		
 	};
 	
 
@@ -272,11 +284,11 @@
 	*/
 	const getInputValuesForButtonRow = function(btn) {
 
-		const charList = btn.closest('[data-characteristic]');
-		const characteristicUuidStr = charList.querySelector('[data-characteristic-input]').value;
-		const characteristicValueStr = charList.querySelector('[data-value-input]').value;
+		const charRow = btn.closest('[data-characteristic]');
+		const characteristicUuidStr = charRow.querySelector('[data-characteristic-input]').value;
+		const characteristicValueStr = charRow.querySelector('[data-value-input]').value;
 
-		const serviceRow = charList.closest('[data-service-row]');
+		const serviceRow = charRow.closest('[data-service-row]');
 		const serviceUuidStr = serviceRow.querySelector('[data-service-input]').value;
 
 		return {
@@ -319,17 +331,20 @@
 
 		webBluetooth.getCharacteristic(charUUID, serviceUUID)
 			.then((characteristic) => {
-				setCharacteristicButton(charRow.querySelector(`[data-btn-write]`), characteristic.properties.write);
-				setCharacteristicButton(charRow.querySelector(`[data-btn-read]`), characteristic.properties.read);
+				setButtonState(charRow.querySelector(`[data-btn-write]`), characteristic.properties.write);
+				setButtonState(charRow.querySelector(`[data-btn-read]`), characteristic.properties.read);
+				if (!characteristic.properties.write) {
+					charRow.querySelector(`[data-value-input]`).setAttribute('readonly', 'readonly');
+				}
 			});
 	};
 
 
 	/**
-	* enable or disable a characteristic's button
+	* enable or disable a button
 	* @returns {undefined}
 	*/
-	const setCharacteristicButton  = function(btn, status) {
+	const setButtonState  = function(btn, status) {
 		if (status) {
 			btn.removeAttribute('disabled');
 		} else {

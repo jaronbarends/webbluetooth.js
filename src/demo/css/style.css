@@ -53,7 +53,7 @@ a:focus {
 	text-decoration: none;
 }
 
-button {
+button:not([disabled]) {
 	cursor: pointer;
 }
 
@@ -119,6 +119,10 @@ textarea {
 	font-variant-numeric: tabular-nums slashed-zero;
 }
 
+input[type="text"][readonly] {
+	border-bottom: 1px dotted;
+}
+
 input.input--write-value {
 	width: 24ch;
 }
@@ -134,6 +138,7 @@ input.input--write-value {
 }
 
 .connection-details {
+	display: inline-block;
 	margin-bottom: 1em;
 	padding: 1em;
 	background-color: rgba(204, 0, 0, 0.2);
@@ -141,6 +146,10 @@ input.input--write-value {
 
 .connection-details--is-connected {
 	background-color: rgba(0, 128, 0, 0.2);
+}
+
+.connection-details__device-name {
+	font-weight: bold;
 }
 
 .btn {
@@ -151,8 +160,8 @@ input.input--write-value {
 	font: inherit;
 }
 
-.btn:hover,
-.btn:focus {
+.btn:not([disabled]):hover,
+.btn:not([disabled]):focus {
 	box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
 

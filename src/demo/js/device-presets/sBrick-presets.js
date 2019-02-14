@@ -3,8 +3,8 @@
 		connection: {
 			namePrefix: 'SBrick',
 			optionalServices: [
+				'4dc591b0-857c-41de-b5f1-15abda665b0c',
 				'device_information',
-				'4dc591b0-857c-41de-b5f1-15abda665b0c'
 			]
 		},
 		operations: {

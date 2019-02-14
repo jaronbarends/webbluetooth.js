@@ -2,11 +2,41 @@ const WebBluetooth = (function() {
 
 	'use strict';
 
+	//-- start utitility functions
+
+	/**
+	* convert the numbers in a dataView to text
+	* @returns {undefined}
+	*/
+	const dataViewToText = function(dataView) {
+		// the dataView returned by readValue represents a dataBuffer
+		// a dataBuffer has a length in bytes (1 byte is 8 bits, representing 0-255)
+		// you can pull data out of the dataView in chunks with methods like getUint8, getUint16 or getUint32
+		// which give you a chunk of 8 bits (1 byte), 16 bits (2 bytes) or 32 bits (4 bytes) respectively.
+		// how many bytes you need to examine together depends on the type of data the buffer represents.
+		// if it represents somewhat large numbers, you may need to look at 2 bytes
+		// regular text characters can be represented by a single byte;
+		// we can get one such byte using getUint8 (which represents 0-255)
+		// these numbers can be mapped to the character they represent
+		let str = '';
+		for (let i=0; i<dataView.byteLength; i++) {
+			str += String.fromCharCode(dataView.getUint8( i ));
+		}
+		return str;
+	}
+
+
+	// define util object that we can point to from class
+	const util = {
+		dataViewToText
+	};
+
 	class WebBluetooth {
 		constructor() {
 			this._connectionOptions = null;
 			this._debug = true;
 			this._resetAll();
+			this.util = util;
 		}
 
 		
@@ -50,7 +80,7 @@ const WebBluetooth = (function() {
 		* @returns {undefined}
 		*/
 		disconnect() {
-			if (this.isConnected()) {
+			if (this.isConnected) {
 				this._device.gatt.disconnect();
 				this._resetAll();
 			} else {
@@ -63,7 +93,7 @@ const WebBluetooth = (function() {
 		* check if device is connected
 		* @returns {undefined}
 		*/
-		isConnected() {
+		get isConnected() {
 			return this._device && this._device.gatt.connected;
 		};
 
@@ -127,7 +157,7 @@ const WebBluetooth = (function() {
 		* @returns {service}
 		*/
 		async getService(serviceUuid) {
-			if (!this.isConnected()) {
+			if (!this.isConnected) {
 				throw new Error('Device not connected');
 			}
 
@@ -153,7 +183,7 @@ const WebBluetooth = (function() {
 		* @returns {characteristic}
 		*/
 		async getCharacteristic(characteristicUuid, serviceUuid) {
-			if (!this.isConnected()) {
+			if (!this.isConnected) {
 				throw new Error('Device not connected');
 			}
 
