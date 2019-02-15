@@ -277,6 +277,32 @@
 		webBluetooth.writeValue(serviceUuid, characteristicUuid, writeValue);
 	};
 
+	
+	/**
+	* start or stop notifications
+	* @returns {undefined}
+	*/
+	const startOrStopNotifications = async function(btn, start) {
+		
+		const inputValues = getInputValuesForButtonRow(btn);
+
+		// get service uuid
+		const serviceUuid = getUuidFromString(inputValues.serviceUuidStr);
+
+		// get characteristic uuid
+		const characteristicUuid = getUuidFromString(inputValues.characteristicUuidStr);
+
+		const characteristic = await webBluetooth.getCharacteristic(characteristicUuid, serviceUuid);
+
+		if (start) {
+			characteristic.addEventListener('characteristicvaluechanged', notificationHandler);
+			characteristic.startNotifications();
+		} else {
+			characteristic.removeEventListener('characteristicvaluechanged', notificationHandler);
+			characteristic.stopNotifications();
+		}
+	};
+
 
 	/**
 	* handle click on stop notify
@@ -285,38 +311,26 @@
 	const stopNotificationsHandler = function(e) {
 		e.preventDefault();
 		
-		// determine which service and characteristic we're dealing with
 		const btn = e.currentTarget;
 		btn.addEventListener('click', startNotificationsHandler);
 		btn.removeEventListener('click', stopNotificationsHandler);
+
+		startOrStopNotifications(btn, false);
 	};
-	
 
 
 	/**
 	* handle click on notify button
 	* @returns {undefined}
 	*/
-	const startNotificationsHandler = async function(e) {
+	const startNotificationsHandler = function(e) {
 		e.preventDefault();
 		
-		// determine which service and characteristic we're dealing with
 		const btn = e.currentTarget;
 		btn.removeEventListener('click', startNotificationsHandler);
 		btn.addEventListener('click', stopNotificationsHandler);
-		const inputValues = getInputValuesForButtonRow(btn);
-		const valueInput = btn.closest('[data-characteristic]').querySelector('[data-value-input');
 
-		// get service uuid
-		const serviceUuid = getUuidFromString(inputValues.serviceUuidStr);
-
-		// get characteristic uuid
-		const characteristicUuid = getUuidFromString(inputValues.characteristicUuidStr);
-
-		// now write value
-		const characteristic = await webBluetooth.getCharacteristic(characteristicUuid, serviceUuid);
-		characteristic.addEventListener('characteristicvaluechanged', notificationHandler);
-		characteristic.startNotifications();
+		startOrStopNotifications(btn, true);
 	};
 
 
