@@ -19,8 +19,8 @@
 	let preset = null;
 	
 	// preset = presets.magicBlue;
-	preset = presets.sBrick;
-	// preset = presets.thingy;
+	// preset = presets.sBrick;
+	preset = presets.thingy;
 
 
 	/**
@@ -39,6 +39,10 @@
 		
 		Array.from(document.querySelectorAll(`[data-btn-read]`)).forEach((btn) => {
 			btn.addEventListener('click', readHandler);
+		});
+		
+		Array.from(document.querySelectorAll(`[data-btn-notify]`)).forEach((btn) => {
+			btn.addEventListener('click', startNotificationsHandler);
 		});
 	};
 
@@ -274,6 +278,73 @@
 	};
 
 
+	/**
+	* handle click on stop notify
+	* @returns {undefined}
+	*/
+	const stopNotificationsHandler = function(e) {
+		e.preventDefault();
+		
+		// determine which service and characteristic we're dealing with
+		const btn = e.currentTarget;
+		btn.addEventListener('click', startNotificationsHandler);
+		btn.removeEventListener('click', stopNotificationsHandler);
+	};
+	
+
+
+	/**
+	* handle click on notify button
+	* @returns {undefined}
+	*/
+	const startNotificationsHandler = async function(e) {
+		e.preventDefault();
+		
+		// determine which service and characteristic we're dealing with
+		const btn = e.currentTarget;
+		btn.removeEventListener('click', startNotificationsHandler);
+		btn.addEventListener('click', stopNotificationsHandler);
+		const inputValues = getInputValuesForButtonRow(btn);
+		const valueInput = btn.closest('[data-characteristic]').querySelector('[data-value-input');
+
+		// get service uuid
+		const serviceUuid = getUuidFromString(inputValues.serviceUuidStr);
+
+		// get characteristic uuid
+		const characteristicUuid = getUuidFromString(inputValues.characteristicUuidStr);
+
+		// now write value
+		const characteristic = await webBluetooth.getCharacteristic(characteristicUuid, serviceUuid);
+		characteristic.addEventListener('characteristicvaluechanged', notificationHandler);
+		characteristic.startNotifications();
+	};
+
+
+	/**
+	* handle a notification
+	* @returns {undefined}
+	*/
+	const notificationHandler = function(e) {
+		const char = e.target;
+		const dataView = char.value;
+		let valueInput;
+		document.querySelectorAll('[data-characteristic-input]').forEach(input => {
+			if (input.value === char.uuid) {
+				const charRow = input.closest('[data-characteristic]');
+				valueInput = charRow.querySelector('[data-value-input');
+			}
+		});
+
+		if (valueInput) {
+			const uint8Array = new Uint8Array(dataView.buffer);
+			const text = webBluetooth.util.dataViewToText(dataView);
+			valueInput.value = `${text} [ ${uint8Array.join(' ')} ]`;
+		}
+	};
+	
+	
+
+
 
 	//-- Start helper functions for form
 
@@ -333,6 +404,7 @@
 			.then((characteristic) => {
 				setButtonState(charRow.querySelector(`[data-btn-write]`), characteristic.properties.write);
 				setButtonState(charRow.querySelector(`[data-btn-read]`), characteristic.properties.read);
+				setButtonState(charRow.querySelector(`[data-btn-notify]`), characteristic.properties.notify);
 				if (!characteristic.properties.write) {
 					charRow.querySelector(`[data-value-input]`).setAttribute('readonly', 'readonly');
 				}
