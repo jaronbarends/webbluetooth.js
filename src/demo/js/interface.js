@@ -3,11 +3,6 @@
 	'use strict';
 
 	let webBluetooth;
-	let isConnected = false;
-	const filterServiceInput = document.getElementById('filter-service-uuid');
-	const targetServiceInput = document.getElementById('target-service-uuid');
-	const targetCharacteristicInput = document.getElementById('target-characteristic-uuid');
-	const targetValueInput = document.getElementById('target-value');
 	const connectionDetailsElm = document.getElementById(`connection-details`);
 	const statusElm = document.getElementById(`connection-status`);
 	const deviceNameElm = document.getElementById(`connection-device-name`);
@@ -19,8 +14,8 @@
 	let preset = null;
 	
 	// preset = presets.magicBlue;
-	// preset = presets.sBrick;
-	preset = presets.thingy;
+	preset = presets.sBrick;
+	// preset = presets.thingy;
 
 
 	/**
@@ -73,7 +68,7 @@
 	* todo: add possibility for strings like "heart_rate"
 	* @returns {string | number}
 	*/
-	const getUuidFromString = function(str) {
+	const getUUIDFromString = function(str) {
 		let uuid = str;
 		if (str.match(/[0-9a-z]{8}-(?:[0-9a-z]{4}-){3}[0-9a-z]{12}/i)) {
 			// 128-bit: 123456ab-123a-123b-123c-1234567890ab
@@ -140,7 +135,7 @@
 		const uuidArr = [];
 		uuidStrArr.forEach((uuidStr) => {
 			// convert each uuid str to a real uuid
-			uuidArr.push(getUuidFromString(uuidStr));
+			uuidArr.push(getUUIDFromString(uuidStr));
 		});
 
 		return uuidArr;
@@ -225,22 +220,16 @@
 
 		// determine which service and characteristic we're dealing with
 		const btn = e.currentTarget;
-		const inputValues = getInputValuesForButtonRow(btn);
-		const valueInput = btn.closest('[data-characteristic]').querySelector('[data-value-input');
+		const btnAssociations = window.interfaceUtil.getBtnAssociations(btn);
+		const valueInput = btnAssociations.valueInput;
+		const serviceUUID = getUUIDFromString(btnAssociations.serviceUUIDStr);
+		const charUUID = getUUIDFromString(btnAssociations.charUUIDStr);
 
-		// get service uuid
-		const serviceUuid = getUuidFromString(inputValues.serviceUuidStr);
-
-		// get characteristic uuid
-		const characteristicUuid = getUuidFromString(inputValues.characteristicUuidStr);
-
-		// now write value
-		const dataView = await webBluetooth.readValue(serviceUuid, characteristicUuid);
-
+		// now read value
+		const dataView = await webBluetooth.readValue(serviceUUID, charUUID);
 		const uint8Array = new Uint8Array(dataView.buffer);
 		const text = webBluetooth.util.dataViewToText(dataView);
 		valueInput.value = `${text} [ ${uint8Array.join(' ')} ]`;
-		
 	};
 	
 
@@ -251,22 +240,17 @@
 	*/
 	const writeHandler = async function(e) {
 		e.preventDefault();
-		// stuff needs to be passed to webBluetooth like this:
-		//   const value = new Uint8Array([0x56, r, g, b, 0xbb, 0xf0, 0xaa]);
-		//   webBluetooth.writeValue(serviceUuid, characteristicUuid, value);
 
 		// determine which service and characteristic we're dealing with
 		const btn = e.currentTarget;
-		const inputValues = getInputValuesForButtonRow(btn)
+		const btnAssociations = window.interfaceUtil.getBtnAssociations(btn);
+		const serviceUUID = getUUIDFromString(btnAssociations.serviceUUIDStr);
+		const charUUID = getUUIDFromString(btnAssociations.charUUIDStr);
 
-		// get service uuid
-		const serviceUuid = getUuidFromString(inputValues.serviceUuidStr);
-
-		// get characteristic uuid
-		const characteristicUuid = getUuidFromString(inputValues.characteristicUuidStr);
-		
+		// prepare data to write
+		// stuff needs to be passed to webBluetooth as a Uint8Array:
 		// create Uint8Array from value
-		const strArray = inputValues.characteristicValueStr.split(' ');// array with strings like "ff", "01"
+		const strArray = btnAssociations.valueStr.split(' ');// array with strings like "ff", "01"
 		const valuesFromHexArray = [];// will be filled with values like 255, 01
 		strArray.forEach((str) => {
 			valuesFromHexArray.push(getValueFromHexString(str));
@@ -274,7 +258,7 @@
 		const writeValue = new Uint8Array(valuesFromHexArray);
 
 		// now write value
-		webBluetooth.writeValue(serviceUuid, characteristicUuid, writeValue);
+		webBluetooth.writeValue(serviceUUID, charUUID, writeValue);
 	};
 
 	
@@ -283,17 +267,11 @@
 	* @returns {undefined}
 	*/
 	const startOrStopNotifications = async function(btn, start) {
-		
-		const inputValues = getInputValuesForButtonRow(btn);
+		const btnAssociations = window.interfaceUtil.getBtnAssociations(btn);
+		const serviceUUID = getUUIDFromString(btnAssociations.serviceUUIDStr);
+		const charUUID = getUUIDFromString(btnAssociations.charUUIDStr);
 
-		// get service uuid
-		const serviceUuid = getUuidFromString(inputValues.serviceUuidStr);
-
-		// get characteristic uuid
-		const characteristicUuid = getUuidFromString(inputValues.characteristicUuidStr);
-
-		const characteristic = await webBluetooth.getCharacteristic(characteristicUuid, serviceUuid);
-
+		const characteristic = await webBluetooth.getCharacteristic(charUUID, serviceUUID);
 		if (start) {
 			characteristic.addEventListener('characteristicvaluechanged', notificationHandler);
 			characteristic.startNotifications();
@@ -310,11 +288,9 @@
 	*/
 	const stopNotificationsHandler = function(e) {
 		e.preventDefault();
-		
 		const btn = e.currentTarget;
 		btn.addEventListener('click', startNotificationsHandler);
 		btn.removeEventListener('click', stopNotificationsHandler);
-
 		startOrStopNotifications(btn, false);
 	};
 
@@ -325,11 +301,9 @@
 	*/
 	const startNotificationsHandler = function(e) {
 		e.preventDefault();
-		
 		const btn = e.currentTarget;
 		btn.removeEventListener('click', startNotificationsHandler);
 		btn.addEventListener('click', stopNotificationsHandler);
-
 		startOrStopNotifications(btn, true);
 	};
 
@@ -341,13 +315,7 @@
 	const notificationHandler = function(e) {
 		const char = e.target;
 		const dataView = char.value;
-		let valueInput;
-		document.querySelectorAll('[data-characteristic-input]').forEach(input => {
-			if (input.value === char.uuid) {
-				const charRow = input.closest('[data-characteristic]');
-				valueInput = charRow.querySelector('[data-value-input');
-			}
-		});
+		const valueInput = window.interfaceUtil.getValueInputByCharUUID(char.uuid);
 
 		if (valueInput) {
 			const uint8Array = new Uint8Array(dataView.buffer);
@@ -364,37 +332,16 @@
 
 
 	/**
-	* get appropriate values when clicking on button
-	* @returns {undefined}
-	*/
-	const getInputValuesForButtonRow = function(btn) {
-
-		const charRow = btn.closest('[data-characteristic]');
-		const characteristicUuidStr = charRow.querySelector('[data-characteristic-input]').value;
-		const characteristicValueStr = charRow.querySelector('[data-value-input]').value;
-
-		const serviceRow = charRow.closest('[data-service-row]');
-		const serviceUuidStr = serviceRow.querySelector('[data-service-input]').value;
-
-		return {
-			characteristicUuidStr,
-			characteristicValueStr,
-			serviceUuidStr
-		};
-	};
-
-
-
-	/**
 	* enable the right buttons for all characteristics' permissions
 	* @returns {undefined}
 	*/
 	const setAllCharacteristicPermissions = function() {
 		const serviceRows = Array.from(document.querySelectorAll(`[data-service-row]`));
 		serviceRows.forEach((serviceRow) => {
+
 			const serviceUUIDString = serviceRow.querySelector([`[data-service-input]`]).value;
 			if (serviceUUIDString) {
-				const characteristicRows = Array.from(serviceRow.querySelectorAll(`[data-characteristic]`));
+				const characteristicRows = Array.from(serviceRow.querySelectorAll(`[data-characteristic-row]`));
 				characteristicRows.forEach((charRow) => {
 					const charUUIDString = charRow.querySelector(`[data-characteristic-input]`).value;
 					if (charUUIDString) {
@@ -411,8 +358,8 @@
 	* @returns {undefined}
 	*/
 	const setCharacteristicPermissions = function(charUUIDString, charRow, serviceUUIDString) {
-		const serviceUUID = getUuidFromString(serviceUUIDString);
-		const charUUID = getUuidFromString(charUUIDString);
+		const serviceUUID = getUUIDFromString(serviceUUIDString);
+		const charUUID = getUUIDFromString(charUUIDString);
 
 		webBluetooth.getCharacteristic(charUUID, serviceUUID)
 			.then((characteristic) => {
@@ -440,6 +387,10 @@
 	
 	
 	
+
+	/*---------------------------------------------------------------------------------
+	* Start form setup
+	*---------------------------------------------------------------------------------*/
 	
 
 
@@ -552,6 +503,9 @@
 	
 
 
+	/*---------------------------------------------------------------------------------
+	* End form setup
+	*---------------------------------------------------------------------------------*/
 
 
 
