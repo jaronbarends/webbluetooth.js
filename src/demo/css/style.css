@@ -17,7 +17,6 @@
 	font-weight: bold;
 }
 
-
 html {
 	font-size: 62.5%;/* 10px */
 }
@@ -138,7 +137,6 @@ input.input--write-value {
 }
 
 .connection-details {
-	display: inline-block;
 	margin-bottom: 1em;
 	padding: 1em;
 	background-color: rgba(204, 0, 0, 0.2);
@@ -209,12 +207,17 @@ input.input--write-value {
 		padding: 1em;
 	}
 
+	.connection-options {
+		display: flex;
+	}
+
 	.service-row {
 		margin: 0 -1em 1em;
 	}
 
 	.connection-option {
-		margin-bottom: 2em;
+		margin: 0 2em 2em 0;
+		width: 36ch;
 	}
 
 	.optional-services {
@@ -245,17 +248,22 @@ input.input--write-value {
 	}
 
 	.characteristic__control {
-		margin-left: 2em;
+		margin-right: 2em;
 	}
 
-	.characteristic__control:first-child {
-		margin-left: 0;
+
+	
+	@media screen and (max-width: 900px) {
+		.connection-options,
+		.characteristic__controls {
+			flex-direction: column;
+		}
 	}
 
 /*-- End characteristic --*/
 
 .input--uuid {
-	width: 38ch;
+	/* width: 38ch; */
 }
 
 .uuid {

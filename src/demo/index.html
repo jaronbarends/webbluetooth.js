@@ -16,47 +16,50 @@
 		
 
 		<form>
-			<fieldset class="connection-options">
+			<fieldset class="connection">
 				<legend>connection options</legend>
-				<ul class="connection-options-list u-list--bare">
-					<li class="connection-option">
-						<label for="filter-services">services<span class="weak">(UUID)</span></label>
-						<input class="input--uuid" id="filter-services" type="text" value="" placeholder="e.g. heart_rate, 0x180d or 0000180d-0000-1000-8000-00805f9b34fb">
-						<p class="explanation">
-							a valid <a href="#about-uuids">UUID</a>, or comma-separated series of UUIDs
-						</p>
-					</li>
-					<li class="connection-option">
-						<label for="filter-name">name</label>
-						<input id="filter-name" type="text" value="" placeholder="e.g. SBrick">
-						<p class="explanation">
-							exact name; case sensitive.
-						</p>
-					</li>
-					<li class="connection-option">
-						<label for="filter-name=prefix">prefix</label>
-						<input id="filter-name-prefix" type="text" value="">
-						<p class="explanation">
-							starting characters of name; case sensitive
-						</p>
-					</li>
-					<li class="connection-option">
-						<label for="optional-services">optional services <span class="weak">(valid <a href="#about-uuids">UUID</a>(s))</span></label>
-						<!-- <input class="input--uuid" id="optional-services" type="text" value=""> -->
-						<textarea class="optional-services input--uuid" id="optional-services" spellcheck="false"></textarea>
-						<p class="explanation">
-							a valid <a href="#about-uuids">UUID</a>, or comma-separated series of UUIDs
-						</p>
-					</li>
-				</ul>
-
-				<div>
-					<div id="connection-details" class="connection-details">
-						<p>
-							<span id="connection-status" class="connection-details__status">Not connected</span>
-							<span id="connection-device-name" class="connection-details__device-name"></span>
-						</p>
+				<p class="explanation">Leaving filters.services, filters.name and filters.namePrefix blank will set <code>acceptAllDevices</code> to <code>true</code></p>
+				<div class="connection-options">
+					<div class="service-options">
+						<div class="connection-option">
+							<label for="filter-services">filters.services <span class="weak">(UUID)</span></label>
+							<input class="input--uuid" id="filter-services" type="text" value="" placeholder="e.g. heart_rate, 0x180d or 0000180d-0000-1000-8000-00805f9b34fb">
+							<p class="explanation">
+								a valid <a href="#about-uuids">UUID</a>, or comma-separated series of UUIDs
+							</p>
+						</div>
+						<div class="connection-option">
+							<label for="optional-services">optionalServices <span class="weak">(valid <a href="#about-uuids">UUID</a>(s))</span></label>
+							<!-- <input class="input--uuid" id="optional-services" type="text" value=""> -->
+							<textarea class="optional-services input--uuid" id="optional-services" spellcheck="false"></textarea>
+							<p class="explanation">
+								a valid <a href="#about-uuids">UUID</a>, or comma-separated series of UUIDs. any service you want to interact with <strong>must</strong> be defined eiter as filter.services or optionalServices.
+							</p>
+						</div>
 					</div>
+					<div class="name-options">
+						<div class="connection-option">
+							<label for="filter-name">filters.name</label>
+							<input id="filter-name" type="text" value="" placeholder="e.g. SBrick">
+							<p class="explanation">
+								exact name; case sensitive.
+							</p>
+						</div>
+						<div class="connection-option">
+							<label for="filter-name=prefix">filters.namePrefix</label>
+							<input id="filter-name-prefix" type="text" value="">
+							<p class="explanation">
+								starting characters of name; case sensitive
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<div id="connection-details" class="connection-details">
+					<p>
+						<span id="connection-status" class="connection-details__status">Not connected</span>
+						<span id="connection-device-name" class="connection-details__device-name"></span>
+					</p>
 				</div>
 				
 				<button id="btn--connect" class="btn btn--connect">Connect</button>
@@ -64,8 +67,9 @@
 			</fieldset>
 
 			<fieldset>
-				<legend>test services</legend>
+				<legend>interact with services</legend>
 				<ul id="target-services-list" class="services-list u-list--bare">
+
 					<li class="service-row" data-service-row>
 						<label for="target-service-0-uuid">service <span class="weak" data-service-label>(valid <a href="#about-uuids">UUID</a>)</span></label>
 						<input class="input--uuid" type="text" id="target-service-0-uuid" placeholder="e.g. heart_rate, 0x180d or 0000180d-0000-1000-8000-00805f9b34fb" data-service-input>
@@ -92,6 +96,7 @@
 										<button class="btn btn--read" data-btn-read disabled>read</button>
 										<button class="btn btn--notify" data-btn-notify disabled>notify</button>
 									</li>
+									
 								</ul>
 							</li>
 						</ul>

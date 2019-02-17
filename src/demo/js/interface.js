@@ -14,8 +14,9 @@
 	let preset = null;
 	
 	// preset = presets.magicBlue;
-	preset = presets.sBrick;
-	// preset = presets.thingy;
+	// preset = presets.sBrick;
+	preset = presets.thingy;
+	// preset = presets.fitbit;
 
 
 	/**
@@ -449,10 +450,12 @@
 		const characteristicsList = serviceRow.querySelector('[data-characteristics-list]')
 		const firstCharRow = characteristicsList.querySelector('li');
 
-		service.characteristics.forEach((characteristic, iChar) => {
-			const charRow = createCharacteristicFormRow(firstCharRow, characteristic, service.uuid, iChar, iServ);
-			characteristicsList.appendChild(charRow);
-		});
+		if (service.characteristics) {
+			service.characteristics.forEach((characteristic, iChar) => {
+				const charRow = createCharacteristicFormRow(firstCharRow, characteristic, service.uuid, iChar, iServ);
+				characteristicsList.appendChild(charRow);
+			});
+		}
 		
 		return serviceRow;
 	};
@@ -470,6 +473,16 @@
 		}
 		elm.value = value ? value.toString() : '';
 	};
+
+
+	/**
+	* get the service UUIDs of services or optional services
+	* @returns {Array} Array of UUIDs
+	*/
+	const getPresetServiceUUIDs = function(serviceObjs) {
+		return serviceObjs.map(obj => obj.uuid);
+	};
+	
 	
 	
 	
@@ -480,23 +493,26 @@
 	const initPresets = function() {
 		if (preset) {
 			// connection presets
-			preset.connection = preset.connection || {};
-			setPresetInput('#filter-services', preset.connection.services);
-			setPresetInput('#filter-name', preset.connection.name);
-			setPresetInput('#filter-name-prefix', preset.connection.namePrefix);
-			setPresetInput('#optional-services', preset.connection.optionalServices);
+			let services = preset.services || [];
+			let optionalServices = preset.optionalServices || [];
+			if (!Array.isArray(services)) { services = [services] };
+			if (!Array.isArray(optionalServices)) { optionalServices = [optionalServices] };
+
+			setPresetInput('#filter-services', getPresetServiceUUIDs(services));
+			setPresetInput('#filter-name', preset.name);
+			setPresetInput('#filter-name-prefix', preset.namePrefix);
+			setPresetInput('#optional-services', getPresetServiceUUIDs(optionalServices));
 
 			// operations presets
 			// loop through services and create fields for characteristic and value
-			if (preset.operations) {
-				const serviceList = document.getElementById(`target-services-list`);
-				const firstRow = serviceList.querySelector('li');
+			const serviceList = document.getElementById(`target-services-list`);
+			const firstRow = serviceList.querySelector('li');
 
-				preset.operations.services.forEach((service, i) => {
-					const serviceRow = createServiceFormRow(firstRow, service, i);
-					serviceList.appendChild(serviceRow);
-				});
-			}
+			const allServices = services.concat(optionalServices);
+			allServices.forEach((service, i) => {
+				const serviceRow = createServiceFormRow(firstRow, service, i);
+				serviceList.appendChild(serviceRow);
+			});
 			
 		}
 	};
@@ -521,6 +537,9 @@
 	const init = function() {
 		webBluetooth = new WebBluetooth();
 		initPresets();
+		document.querySelectorAll(`input, textarea`).forEach(field => {
+			field.addEventListener('focus', e => e.target.select());
+		});
 		initButtons();
 	};
 
