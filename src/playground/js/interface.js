@@ -16,7 +16,6 @@
 	// preset = presets.magicBlue;
 	// preset = presets.sBrick;
 	preset = presets.thingy;
-	// preset = presets.fitbit;
 
 
 	/**
@@ -228,6 +227,7 @@
 
 		// now read value
 		const dataView = await webBluetooth.readValue(serviceUUID, charUUID);
+		console.log(window.interfaceUtil.decodeLedData(dataView));
 		const uint8Array = new Uint8Array(dataView.buffer);
 		const text = webBluetooth.util.dataViewToText(dataView);
 		valueInput.value = `${text} [ ${uint8Array.join(' ')} ]`;
@@ -337,6 +337,7 @@
 	* @returns {undefined}
 	*/
 	const setAllCharacteristicPermissions = function() {
+		console.log('go set char permissions');
 		const serviceRows = Array.from(document.querySelectorAll(`[data-service-row]`));
 		serviceRows.forEach((serviceRow) => {
 
@@ -346,6 +347,7 @@
 				characteristicRows.forEach((charRow) => {
 					const charUUIDString = charRow.querySelector(`[data-characteristic-input]`).value;
 					if (charUUIDString) {
+						console.log('go set single char permission');
 						setCharacteristicPermissions(charUUIDString, charRow, serviceUUIDString);
 					}
 				})
@@ -364,6 +366,7 @@
 
 		webBluetooth.getCharacteristic(charUUID, serviceUUID)
 			.then((characteristic) => {
+				console.log('got char:', characteristic);
 				setButtonState(charRow.querySelector(`[data-btn-write]`), characteristic.properties.write);
 				setButtonState(charRow.querySelector(`[data-btn-read]`), characteristic.properties.read);
 				setButtonState(charRow.querySelector(`[data-btn-notify]`), characteristic.properties.notify);

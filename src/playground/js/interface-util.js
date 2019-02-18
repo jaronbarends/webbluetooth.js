@@ -62,6 +62,57 @@
 	const getValueInputByCharUUID = function(charUUID) {
 		return getCharRowByUUID(charUUID).querySelector('[data-value-input');
 	};
+
+
+
+
+
+
+
+
+
+
+	const decodeLedData = function(data) {
+		try {
+		  const mode = data.getUint8(0);
+		  const littleEndian = true;
+		  let status;
+	
+		  switch (mode) {
+		  case 0:
+			status = {
+			  mode: mode,
+			};
+			break;
+		  case 1:
+			status = {
+			  mode: mode,
+			  r: data.getUint8(1),
+			  g: data.getUint8(2),
+			  b: data.getUint8(3),
+			};
+			break;
+		  case 2:
+			status = {
+			  mode: mode,
+			  color: data.getUint8(1),
+			  intensity: data.getUint8(2),
+			  delay: data.getUint16(3, littleEndian),
+			};
+			break;
+		  case 3:
+			status = {
+			  mode: mode,
+			  color: data.getUint8(1),
+			  intensity: data.getUint8(2),
+			};
+			break;
+		  }
+		  return status;
+		} catch (error) {
+		  throw error;
+		}
+	  }
 	
 
 	window.interfaceUtil = {
@@ -69,6 +120,7 @@
 		getCharInputByUUID,
 		getValueInputByCharUUID,
 		getBtnAssociations,
+		decodeLedData
 	};
 
 })();

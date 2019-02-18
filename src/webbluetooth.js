@@ -63,10 +63,6 @@ const WebBluetooth = (function() {
 				this._device = await navigator.bluetooth.requestDevice(options);
 				window.device = this._device;
 				this._gattServer = await this._device.gatt.connect();
-				if (options.filter && options.filter.services) {
-					// let's proactively get these services
-					// await this.getService(serviceUuid);
-				}
 				return true;
 			} catch(error) {
 				this._error(`Something went wrong while connecting`, error);
@@ -117,7 +113,7 @@ const WebBluetooth = (function() {
 		async writeValue(serviceUuid, characteristicUuid, value) {
 			try {
 				const characteristic = await this.getCharacteristic(characteristicUuid, serviceUuid);
-				return await characteristic.writeValue(value)
+				return await characteristic.writeValue(value);
 			} catch(error) {
 				this._error(`Couldn't write value`, error);
 			}
