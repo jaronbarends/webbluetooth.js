@@ -412,8 +412,12 @@
 
 		const charInputId = `target-characteristic-${iServ}-${iChar}-uuid`;
 		const valueInputId = `target-characteristic-${iServ}-${iChar}-value`;
+		const radixHexId = `value-radix-hex-${iServ}-${iChar}`;
+		const radixDecId = `value-radix-dec-${iServ}-${iChar}`;
 		const charInput = charRow.querySelector('[data-characteristic-input]');
 		const valueInput = charRow.querySelector('[data-value-input]');
+		const radixHexInput = charRow.querySelector('[data-radix-input-hex]');
+		const radixDecInput = charRow.querySelector('[data-radix-input-dec]');
 		
 		charRow.querySelector('[data-characteristic-label]').setAttribute('for', charInputId);
 		charInput.id = charInputId;
@@ -424,6 +428,20 @@
 		valueInput.id = valueInputId;
 		valueInput.value = characteristicObj.exampleValue || '';
 		charRow.querySelector('[data-value-explanation]').innerHTML = characteristicObj.valueExplanation || '';
+
+		radixHexInput.id = radixHexId
+		radixHexInput.setAttribute('name', `value-radix-${iServ}-${iChar}`);
+		charRow.querySelector('[data-radix-label-hex]').setAttribute('for', radixHexId);
+		radixDecInput.id = radixDecId
+		radixDecInput.setAttribute('name', `value-radix-${iServ}-${iChar}`);
+		charRow.querySelector('[data-radix-label-dec]').setAttribute('for', radixDecId);
+		if (characteristicObj.exampleValueIsDecimal) {
+			console.log('yep');
+			radixDecInput.setAttribute('checked', 'checked');
+		} else {
+			console.log('nope');
+			radixHexInput.setAttribute('checked', 'checked');
+		}
 
 		return charRow;
 	};

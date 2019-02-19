@@ -31,7 +31,8 @@
 						uuid: 'ef680301-9b35-4933-9b10-52ffa9740042',// led
 						description: 'led characteristic',
 						exampleValue: '02 02 4a d0 07',
-						valueExplanation: 'mode color intensity delay delay<br>last two bytes are little endian'
+						exampleValueIsDecimal: false,
+						valueExplanation: 'mode - color - intensity - delay LSB - delay MSB'
 					}
 				]
 			},

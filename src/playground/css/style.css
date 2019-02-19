@@ -251,6 +251,22 @@ input.input--write-value {
 		margin-right: 2em;
 	}
 
+	.value-radix {
+		margin: -0.5em 0 0.6em;
+	}
+
+	.value-radix input {
+		margin: 0;
+		margin-right: 0.3em;
+	}
+
+	.value-radix__label {
+		display: inline-block;
+		margin-right: 1em;
+		font-weight: normal;
+		vertical-align: middle;
+	}
+
 
 	
 	@media screen and (max-width: 900px) {
