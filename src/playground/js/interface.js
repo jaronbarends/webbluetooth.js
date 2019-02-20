@@ -571,7 +571,6 @@
 	* @returns {undefined}
 	*/
 	const setDevicePresets = function() {
-		if (currPreset) {
 			// connection presets
 			let services = currPreset.services || [];
 			let optionalServices = currPreset.optionalServices || [];
@@ -598,8 +597,6 @@
 				const serviceRow = createServiceFormRow(firstRow, service, i);
 				serviceList.appendChild(serviceRow);
 			});
-			
-		}
 	};
 	
 
