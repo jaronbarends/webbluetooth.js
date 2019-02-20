@@ -100,7 +100,9 @@ label {
 }
 
 input,
-textarea {
+textarea,
+select,
+option {
 	background-color: transparent;
 	vertical-align: middle;
 	font: inherit;
@@ -108,7 +110,8 @@ textarea {
 }
 
 input[type="text"],
-textarea {
+textarea,
+select {
 	margin-bottom: 0.6em;
 	padding: 0 0 0.1em;
 	border: none;
@@ -124,6 +127,11 @@ input[type="text"][readonly] {
 
 input.input--write-value {
 	width: 24ch;
+}
+
+select {
+	margin: 0;
+	width: auto;
 }
 
 ::placeholder {
@@ -201,13 +209,22 @@ input.input--write-value {
 
 /*-- Start filters --*/
 
+	.device-presets-picker {
+		padding-bottom: 1em;
+	}
+
+	.device-presets-picker label {
+		display: inline-block;
+		font-weight: normal;
+	}
+
 	.connection-options,
 	.service-row {
 		background: #f8f8f8;
 		padding: 1em;
 	}
 
-	.connection-options {
+	.request-device-options {
 		display: flex;
 	}
 
@@ -270,7 +287,7 @@ input.input--write-value {
 
 	
 	@media screen and (max-width: 900px) {
-		.connection-options,
+		.request-device-options,
 		.characteristic__controls {
 			flex-direction: column;
 		}
@@ -284,4 +301,8 @@ input.input--write-value {
 
 .uuid {
 	font-variant-numeric: tabular-nums slashed-zero;
+}
+
+.clone-src {
+	display: none;
 }

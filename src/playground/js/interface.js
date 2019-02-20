@@ -10,22 +10,38 @@
 	const connectBtn = document.getElementById('btn--connect');
 	const disconnectBtn = document.getElementById('btn--disconnect');
 
-	const presets = window.devicePresets;
-	let preset = null;
+	const devicePresets = window.devicePresets;
+	let currPreset = null;
+	const presets = [
+		'',
+		devicePresets.magicBlue,
+		devicePresets.sBrick,
+		devicePresets.thingy
+	];
+	let currPresetIdx = 3;
+	currPreset = presets[currPresetIdx];
 	
-	preset = presets.magicBlue;
-	// preset = presets.sBrick;
-	preset = presets.thingy;
+	// preset = devicePresets.magicBlue;
+	// // preset = devicePresets.sBrick;
+	// preset = devicePresets.thingy;
 
 
 	/**
 	* init the connect btn
 	* @returns {undefined}
 	*/
-	const initButtons = function() {
+	const initConnectButtons = function() {
 		// connection buttons are one-offs
 		connectBtn.addEventListener('click', connectHandler);
 		disconnectBtn.addEventListener('click', disconnectHandler);
+	};
+
+
+	/**
+	* initialize buttons for actions
+	* @returns {undefined}
+	*/
+	const initActionButtons = function() {
 		
 		// buttons for operations may occur multiple times
 		Array.from(document.querySelectorAll(`[data-btn-write]`)).forEach((btn) => {
@@ -40,6 +56,7 @@
 			btn.addEventListener('click', startNotificationsHandler);
 		});
 	};
+	
 
 
 	/**
@@ -93,6 +110,7 @@
 	const connectHandler = async function(e) {
 		e.preventDefault();
 		const options = getConnectionOptions();
+		console.log(options);
 		await webBluetooth.connect(options);
 		const isConnected = webBluetooth.isConnected;
 		if (isConnected) {
@@ -129,7 +147,7 @@
 	* @returns {undefined}
 	*/
 	const getUUIDArrayFromString = function(uuidStr) {
-		uuidStr = uuidStr.replace(' ', '');// remove any spaces
+		uuidStr = uuidStr.replace(/\s/g, '');// remove any white space
 		const uuidStrArr = uuidStr.split(',');
 		const uuidArr = [];
 		uuidStrArr.forEach((uuidStr) => {
@@ -509,6 +527,20 @@
 		return serviceObjs.map(obj => obj.uuid);
 	};
 	
+
+	/**
+	* change the device preset
+	* @returns {undefined}
+	*/
+	const changePreset = function(e) {
+		if (e) {
+			currPresetIdx = e.target.value;
+			currPreset = presets[currPresetIdx];
+		}
+		setDevicePresets();
+		initActionButtons();
+	};
+	
 	
 	
 	
@@ -517,22 +549,49 @@
 	* @returns {undefined}
 	*/
 	const initPresets = function() {
-		if (preset) {
+		const presetSelect = document.getElementById(`device-presets`);
+		presets.forEach((preset, i) => {
+			const option = document.createElement('option');
+			option.value = i;
+			option.textContent = preset.presetTitle || ((i === 0) ? '- none -' : '');
+			if (i == currPresetIdx) {
+				option.selected = true;
+			}
+			presetSelect.appendChild(option);
+		});
+		presetSelect.addEventListener('change', changePreset);
+		changePreset();
+	};
+	
+	
+	
+	
+	/**
+	* initialize presets for a specific device
+	* @returns {undefined}
+	*/
+	const setDevicePresets = function() {
+		if (currPreset) {
 			// connection presets
-			let services = preset.services || [];
-			let optionalServices = preset.optionalServices || [];
+			let services = currPreset.services || [];
+			let optionalServices = currPreset.optionalServices || [];
 			if (!Array.isArray(services)) { services = [services] };
 			if (!Array.isArray(optionalServices)) { optionalServices = [optionalServices] };
 
 			setPresetInput('#filter-services', getPresetServiceUUIDs(services));
-			setPresetInput('#filter-name', preset.name);
-			setPresetInput('#filter-name-prefix', preset.namePrefix);
+			setPresetInput('#filter-name', currPreset.name);
+			setPresetInput('#filter-name-prefix', currPreset.namePrefix);
 			setPresetInput('#optional-services', getPresetServiceUUIDs(optionalServices));
 
 			// operations presets
 			// loop through services and create fields for characteristic and value
 			const serviceList = document.getElementById(`target-services-list`);
-			const firstRow = serviceList.querySelector('li');
+			while (serviceList.hasChildNodes()) {
+				serviceList.removeChild(serviceList.lastChild);
+			  }// empty the list
+			// const firstRow = serviceList.querySelector('li');
+			const firstRow = document.getElementById(`services-list-clone-src`).querySelector('[data-service-row]').cloneNode(true);
+			serviceList.appendChild(firstRow);
 
 			const allServices = services.concat(optionalServices);
 			allServices.forEach((service, i) => {
@@ -562,11 +621,11 @@
 	*/
 	const init = function() {
 		webBluetooth = new WebBluetooth();
+		initConnectButtons();
 		initPresets();
 		document.querySelectorAll(`input, textarea`).forEach(field => {
 			field.addEventListener('focus', e => e.target.select());
 		});
-		initButtons();
 	};
 
 	// kick of the script when all dom content has loaded

@@ -1,5 +1,6 @@
 (function() {
 	const magicBlue = {
+		presetTitle: 'MagicBlue bulb',
 		services: [
 			{
 				uuid: '0xffe5',

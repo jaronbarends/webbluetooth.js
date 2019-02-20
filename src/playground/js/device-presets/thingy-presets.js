@@ -1,8 +1,8 @@
 (function() {
 	const thingy = {
+		presetTitle: 'Thingy',
 		namePrefix: 'Thingy',
 		optionalServices: [
-			// SOMEHOW, ONLY TWO SERVICES WORK AT THE TIME?!
 			{
 				uuid: 'ef680100-9b35-4933-9b10-52ffa9740042', //Thingy Configuration Service
 				description: 'configuration service',
@@ -13,16 +13,16 @@
 					}
 				]
 			},
-			// {
-			// 	uuid: 'ef680200-9b35-4933-9b10-52ffa9740042', // Thingy Environment Service
-			// 	description: 'environment service',
-			// 	characteristics: [
-			// 		{
-			// 			uuid: 'ef680201-9b35-4933-9b10-52ffa9740042', // TES_TEMP_UUID
-			// 			description: 'temperature'
-			// 		}
-			// 	]
-			// },
+			{
+				uuid: 'ef680200-9b35-4933-9b10-52ffa9740042', // Thingy Environment Service
+				description: 'environment service',
+				characteristics: [
+					{
+						uuid: 'ef680201-9b35-4933-9b10-52ffa9740042', // TES_TEMP_UUID
+						description: 'temperature'
+					}
+				]
+			},
 			{
 				uuid: 'ef680300-9b35-4933-9b10-52ffa9740042', //Thingy User Interface Service
 				description: 'user interface service',

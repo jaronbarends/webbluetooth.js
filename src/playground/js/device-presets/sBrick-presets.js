@@ -1,5 +1,6 @@
 (function() {
 	const sBrick = {
+		presetTitle: 'sBrick',
 		services: [],
 		namePrefix: 'SBrick',
 		optionalServices: [
