@@ -13,7 +13,7 @@
 	const presets = window.devicePresets;
 	let preset = null;
 	
-	// preset = presets.magicBlue;
+	preset = presets.magicBlue;
 	// preset = presets.sBrick;
 	preset = presets.thingy;
 
@@ -43,18 +43,17 @@
 
 
 	/**
-	* get integer value from string representing hex value
-	* @returns {number}
+	* get a 0-prefixed hex string from a number value
+	* @returns {string}
 	*/
-	const getValueFromHexString = function(hexString) {
-		hexString = hexString || 0;
-		if (hexString) {
-			if (hexString.indexOf('0x') === -1) {
-				hexString = `0x${hexString}`;
-			}
+	const getHexStringFromValue = function(num) {
+		let str = num.toString(16);
+		if (str.length === 1) {
+			str = `0${str}`;
 		}
-		return parseInt(hexString);
+		return str;
 	};
+	
 
 
 	/**
@@ -78,7 +77,7 @@
 			}
 		} else if (str.match(/^(0x)?([0-9a-f]{4}){1,2}$/i)) {
 			// 16-bit or 32-bit: one of 0x12ab, 12ab, 0x12ab34cd, 12ab34cd
-			uuid = getValueFromHexString(str);
+			uuid = parseInt(str, 16);
 		} else {
 			// it's a normal string, like 'heart_rate' - leave it as is.
 		}
@@ -227,9 +226,15 @@
 
 		// now read value
 		const dataView = await webBluetooth.readValue(serviceUUID, charUUID);
-		console.log(window.interfaceUtil.decodeLedData(dataView));
-		const uint8Array = new Uint8Array(dataView.buffer);
 		const text = webBluetooth.util.dataViewToText(dataView);
+		let uint8Array = new Uint8Array(dataView.buffer);
+
+		if (btnAssociations.valueType === 'hex') {
+			// then convert each value to hex
+			uint8Array = Array.from(uint8Array);
+			uint8Array = uint8Array.map(num => getHexStringFromValue(num));
+		}
+		
 		valueInput.value = `${text} [ ${uint8Array.join(' ')} ]`;
 	};
 	
@@ -251,12 +256,14 @@
 		// prepare data to write
 		// stuff needs to be passed to webBluetooth as a Uint8Array:
 		// create Uint8Array from value
-		const strArray = btnAssociations.valueStr.split(' ');// array with strings like "ff", "01"
-		const valuesFromHexArray = [];// will be filled with values like 255, 01
+		const strArray = btnAssociations.valueStr.split(' ');// array with strings of decimal or hex values
+		let valuesArray = [];// will be filled with values like 255, 01
 		strArray.forEach((str) => {
-			valuesFromHexArray.push(getValueFromHexString(str));
+			valuesArray.push(str);
 		});
-		const writeValue = new Uint8Array(valuesFromHexArray);
+		const radix = (btnAssociations.valueType === 'hex') ? 16 : 10;
+		valuesArray = valuesArray.map(str => parseInt(str, radix));
+		const writeValue = new Uint8Array(valuesArray);
 
 		// now write value
 		webBluetooth.writeValue(serviceUUID, charUUID, writeValue);
@@ -337,7 +344,6 @@
 	* @returns {undefined}
 	*/
 	const setAllCharacteristicPermissions = function() {
-		console.log('go set char permissions');
 		const serviceRows = Array.from(document.querySelectorAll(`[data-service-row]`));
 		serviceRows.forEach((serviceRow) => {
 
@@ -347,7 +353,6 @@
 				characteristicRows.forEach((charRow) => {
 					const charUUIDString = charRow.querySelector(`[data-characteristic-input]`).value;
 					if (charUUIDString) {
-						console.log('go set single char permission');
 						setCharacteristicPermissions(charUUIDString, charRow, serviceUUIDString);
 					}
 				})
@@ -366,7 +371,6 @@
 
 		webBluetooth.getCharacteristic(charUUID, serviceUUID)
 			.then((characteristic) => {
-				console.log('got char:', characteristic);
 				setButtonState(charRow.querySelector(`[data-btn-write]`), characteristic.properties.write);
 				setButtonState(charRow.querySelector(`[data-btn-read]`), characteristic.properties.read);
 				setButtonState(charRow.querySelector(`[data-btn-notify]`), characteristic.properties.notify);
@@ -410,14 +414,17 @@
 			charRow = firstCharRow.cloneNode(true);
 		}
 
-		const charInputId = `target-characteristic-${iServ}-${iChar}-uuid`;
-		const valueInputId = `target-characteristic-${iServ}-${iChar}-value`;
-		const radixHexId = `value-radix-hex-${iServ}-${iChar}`;
-		const radixDecId = `value-radix-dec-${iServ}-${iChar}`;
+		const rowId = `${iServ}-${iChar}`;
+		const charInputId = `target-characteristic-${rowId}-uuid`;
+		const valueInputId = `target-characteristic-${rowId}-value`;
+		const radixHexId = `value-radix-hex-${rowId}`;
+		const radixDecId = `value-radix-dec-${rowId}`;
 		const charInput = charRow.querySelector('[data-characteristic-input]');
 		const valueInput = charRow.querySelector('[data-value-input]');
 		const radixHexInput = charRow.querySelector('[data-radix-input-hex]');
 		const radixDecInput = charRow.querySelector('[data-radix-input-dec]');
+
+		charRow.setAttribute('data-characteristic-row-id', rowId);
 		
 		charRow.querySelector('[data-characteristic-label]').setAttribute('for', charInputId);
 		charInput.id = charInputId;
@@ -430,17 +437,15 @@
 		charRow.querySelector('[data-value-explanation]').innerHTML = characteristicObj.valueExplanation || '';
 
 		radixHexInput.id = radixHexId
-		radixHexInput.setAttribute('name', `value-radix-${iServ}-${iChar}`);
+		radixHexInput.setAttribute('name', `value-radix-${rowId}`);
 		charRow.querySelector('[data-radix-label-hex]').setAttribute('for', radixHexId);
 		radixDecInput.id = radixDecId
-		radixDecInput.setAttribute('name', `value-radix-${iServ}-${iChar}`);
+		radixDecInput.setAttribute('name', `value-radix-${rowId}`);
 		charRow.querySelector('[data-radix-label-dec]').setAttribute('for', radixDecId);
 		if (characteristicObj.exampleValueIsDecimal) {
-			console.log('yep');
-			radixDecInput.setAttribute('checked', 'checked');
+			radixDecInput.checked = true;
 		} else {
-			console.log('nope');
-			radixHexInput.setAttribute('checked', 'checked');
+			radixHexInput.checked = true;
 		}
 
 		return charRow;
