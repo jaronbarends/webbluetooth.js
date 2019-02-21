@@ -43,15 +43,20 @@
 	</p>
 
 	
-	<script src="../webBluetooth.js"></script>
-	<script>
+	<script type="module">
+		// import the WebBluetooth class
+		import WebBluetooth from '../webBluetooth.js';
+
+		// create an instance
 		const webBluetooth = new WebBluetooth();
 
+		// define constants for the UUIDS of services and characteristics
 		const SERVICE_UUID_TUIS = 'ef680300-9b35-4933-9b10-52ffa9740042'; // UUID of Thingy User Interface Service
 		const CHAR_UUID_LED = 'ef680301-9b35-4933-9b10-52ffa9740042';// UUID of Thingy led characteristic
 		const SERVICE_UUID_TES = 'ef680200-9b35-4933-9b10-52ffa9740042'; // UUID of Thingy Environment Service
 		const CHAR_UUID_TEMP = 'ef680201-9b35-4933-9b10-52ffa9740042';// UUID of Thingy temperature characteristic
 
+		// set request device options
 		const options = {
 			acceptAllDevices: true,
 			optionalServices: [SERVICE_UUID_TES]// you MUST specify services in filters or as optionalServices to be able to interact with them
