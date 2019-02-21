@@ -7,35 +7,117 @@
 	<title>WebBluetooth demo</title>
 	
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-	<button id="connect-btn">Connect with bluetooth</button>
-	<button id="read-btn">Read value</button>
-	<button id="write-btn">Write value</button>
-	<button id="notify-btn">Start notications</button>
 </head>
 <body>
-	
-	<script src="../webbluetooth.js"></script>
+	<h1>Basic example for web bluetooth communication</h1>
+	<p>
+		I've used a <a href="https://www.nordicsemi.com/Software-and-Tools/Development-Kits/Nordic-Thingy-52">Nordic Thingy:52</a> as the device to communicate with, but you can easily change this by adjusting the uuid's of the services and characteristics.
+	</p>
+	<p>
+		<button id="connect-btn">Connect</button>
+		Connect with the device
+	</p>
+	<p>
+		<button id="disconnect-btn">Disconnect bluetooth</button>
+		Disconnect from the device
+	</p>
+	<p>
+		<button id="read-btn">Read value</button>
+		Read the device's led value (logs to console)
+	</p>
+	<p>
+		<button id="write-btn--red">Write value red</button>
+		Write value [2, 2, 74, 208, 7] to device, turning led red
+	</p>
+	<p>
+		<button id="write-btn--green">Write value green</button>
+		Write value [2, 2, 74, 208, 7] to device, turning led green
+	</p>
+	<p>
+		<button id="start-notify-btn">Start notications</button>
+		Start notification of temperature measurements (logs to console)
+	</p>
+	<p>
+		<button id="stop-notify-btn">Stop notications</button>
+		Stop notification of temperature measurements
+	</p>
 
+	
+	<script src="../webBluetooth.js"></script>
 	<script>
-		const webbluetooth = new WebBluetooth();
-		const connectBtn = document.getElementById(`connect-btn`);
+		const webBluetooth = new WebBluetooth();
+
+		const SERVICE_UUID_TUIS = 'ef680300-9b35-4933-9b10-52ffa9740042'; // UUID of Thingy User Interface Service
+		const CHAR_UUID_LED = 'ef680301-9b35-4933-9b10-52ffa9740042';// UUID of Thingy led characteristic
+		const SERVICE_UUID_TES = 'ef680200-9b35-4933-9b10-52ffa9740042'; // UUID of Thingy Environment Service
+		const CHAR_UUID_TEMP = 'ef680201-9b35-4933-9b10-52ffa9740042';// UUID of Thingy temperature characteristic
 
 		const options = {
-			filters: {
-				acceptAllDevices: true,
-			},
-			conditionalServices: [0xffe5]
+			acceptAllDevices: true,
+			optionalServices: [SERVICE_UUID_TES]// you MUST specify services in filters or as optionalServices to be able to interact with them
 		};
 
-		const connect = function(e) {
-			e.preventDefault();
+		// add event listeners to all buttons - quite some repitition here, but that makes it easier to grasp ;)
 
+		//-- connecting with the device
+		document.getElementById(`connect-btn`).addEventListener('click', async function() {
+			await webBluetooth.connect(options);
+			console.log('connected to device');
+		});
+		
+		
+		//-- disconnecting from the device
+		document.getElementById(`disconnect-btn`).addEventListener('click', function() {
+			webBluetooth.disconnect();
+			console.log('disconnected');
+		});
+
+		//-- read led value
+		document.getElementById(`read-btn`).addEventListener('click', async function() {
+			const value = await webBluetooth.readValue(SERVICE_UUID_TUIS, CHAR_UUID_LED, Uint8Array);
+			console.log('value:', value);
+		});
+		
+		
+		//-- write led value (red)
+		document.getElementById(`write-btn--red`).addEventListener('click', async function() {
+			const value = new Uint8Array([2, 1, 74, 208, 7]);// the second array value represents color (1-7 allowed)
+			await webBluetooth.writeValue(SERVICE_UUID_TUIS, CHAR_UUID_LED, value);
+			console.log('done writing');
+		});
+		
+		
+		//-- write led value (green)
+		document.getElementById(`write-btn--green`).addEventListener('click', async function() {
+			const value = new Uint8Array([2, 2, 74, 208, 7]);// the second array value represents color (1-7 allowed)
+			await webBluetooth.writeValue(SERVICE_UUID_TUIS, CHAR_UUID_LED, value);
+			console.log('done writing');
+		});
+
+
+		//-- handler for notifications
+		const notificationHandler = function(e) {
+			const characteristic = e.target;
+			const dataView = characteristic.value;
+			const Uint8Array = webBluetooth.util.dataViewToUint8Array(dataView);
+			console.log('value:', Uint8Array);
 		}
 
-		
-		connectBtn.addEventListener('click', connect);
-		
+
+		//-- start notifications
+		document.getElementById(`start-notify-btn`).addEventListener('click', async function() {
+			const characteristic = await webBluetooth.getCharacteristic(CHAR_UUID_TEMP, SERVICE_UUID_TES);
+			characteristic.addEventListener('characteristicvaluechanged', notificationHandler);// use named function instead of anonymous function here to be able to remove this event listener later
+			characteristic.startNotifications();
+		});
+
+
+		//-- stop notifications
+		document.getElementById(`stop-notify-btn`).addEventListener('click', async function() {
+			const characteristic = await webBluetooth.getCharacteristic(CHAR_UUID_TEMP, SERVICE_UUID_TES);
+			characteristic.removeEventListener('characteristicvaluechanged', notificationHandler);
+			characteristic.stopNotifications();
+		});
 	</script>
 	
 </body>

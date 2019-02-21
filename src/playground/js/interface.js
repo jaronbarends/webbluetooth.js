@@ -18,12 +18,8 @@
 		devicePresets.sBrick,
 		devicePresets.thingy
 	];
-	let currPresetIdx = 3;
+	let currPresetIdx = 0;
 	currPreset = presets[currPresetIdx];
-	
-	// preset = devicePresets.magicBlue;
-	// // preset = devicePresets.sBrick;
-	// preset = devicePresets.thingy;
 
 
 	/**
@@ -110,7 +106,6 @@
 	const connectHandler = async function(e) {
 		e.preventDefault();
 		const options = getConnectionOptions();
-		console.log(options);
 		await webBluetooth.connect(options);
 		const isConnected = webBluetooth.isConnected;
 		if (isConnected) {
@@ -461,8 +456,10 @@
 		radixDecInput.setAttribute('name', `value-radix-${rowId}`);
 		charRow.querySelector('[data-radix-label-dec]').setAttribute('for', radixDecId);
 		if (characteristicObj.exampleValueIsDecimal) {
+			console.log('dec');
 			radixDecInput.checked = true;
 		} else {
+			console.log('hex');
 			radixHexInput.checked = true;
 		}
 
@@ -588,7 +585,6 @@
 			while (serviceList.hasChildNodes()) {
 				serviceList.removeChild(serviceList.lastChild);
 			  }// empty the list
-			// const firstRow = serviceList.querySelector('li');
 			const firstRow = document.getElementById(`services-list-clone-src`).querySelector('[data-service-row]').cloneNode(true);
 			serviceList.appendChild(firstRow);
 

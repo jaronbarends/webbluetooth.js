@@ -229,7 +229,7 @@ select {
 	}
 
 	.service-row {
-		margin: 0 -1em 1em;
+		margin: 0 0 1em;
 	}
 
 	.connection-option {
