@@ -34,10 +34,10 @@
 
 
 	/**
-	* initialize buttons for actions
+	* initialize buttons for characteristic actions
 	* @returns {undefined}
 	*/
-	const initActionButtons = function() {
+	const initCharacteristicButtons = function() {
 		
 		// buttons for operations may occur multiple times
 		Array.from(document.querySelectorAll(`[data-btn-write]`)).forEach((btn) => {
@@ -52,6 +52,17 @@
 			btn.addEventListener('click', startNotificationsHandler);
 		});
 	};
+
+
+	/**
+	* 
+	* @returns {undefined}
+	*/
+	const disableAllCharacteristicButtons = function() {
+		const allButtons = document.querySelectorAll('[data-characteristic-row] .btn');
+		allButtons.forEach(button => button.setAttribute('disabled', 'disabled'));
+	};
+	
 	
 
 
@@ -124,6 +135,7 @@
 		e.preventDefault();
 		webBluetooth.disconnect();
 		setConnectionStatus();
+		disableAllCharacteristicButtons();
 	};
 
 
@@ -239,8 +251,8 @@
 
 		// now read value
 		const dataView = await webBluetooth.readValue(serviceUUID, charUUID);
-		const text = webBluetooth.util.dataViewToText(dataView);
-		let uint8Array = new Uint8Array(dataView.buffer);
+		const text = webBluetooth.util.dataViewToString(dataView);
+		let uint8Array = webBluetooth.util.dataViewToUint8Array(dataView);
 
 		if (btnAssociations.valueType === 'hex') {
 			// then convert each value to hex
@@ -340,7 +352,7 @@
 
 		if (valueInput) {
 			const uint8Array = new Uint8Array(dataView.buffer);
-			const text = webBluetooth.util.dataViewToText(dataView);
+			const text = webBluetooth.util.dataViewToString(dataView);
 			valueInput.value = `${text} [ ${uint8Array.join(' ')} ]`;
 		}
 	};
@@ -535,7 +547,7 @@
 			currPreset = presets[currPresetIdx];
 		}
 		setDevicePresets();
-		initActionButtons();
+		initCharacteristicButtons();
 	};
 	
 	

@@ -8,7 +8,7 @@ const WebBluetooth = (function() {
 	* convert the numbers in a dataView to text
 	* @returns {undefined}
 	*/
-	const dataViewToTextOld = function(dataView) {
+	const dataViewToStringOld = function(dataView) {
 		// the dataView returned by readValue represents a dataBuffer
 		// a dataBuffer has a length in bytes (1 byte is 8 bits, representing 0-255)
 		// you can pull data out of the dataView in chunks with methods like getUint8, getUint16 or getUint32
@@ -29,7 +29,7 @@ const WebBluetooth = (function() {
 	* convert the numbers in a dataView to text
 	* @returns {undefined}
 	*/
-	const dataViewToText = function(dataView) {
+	const dataViewToString = function(dataView) {
 		const uint8Array = dataViewToUint8Array(dataView);
 		const decoder = new TextDecoder('utf-8');
 		return decoder.decode(uint8Array);
@@ -37,11 +37,10 @@ const WebBluetooth = (function() {
 	
 
 	/**
-	* get the uint8 array for the dataView's view on its buffer
+	* get the uint8 array for the dataView's on a buffer, taking byte offset and byte length into account
 	* @returns {undefined}
 	*/
 	const dataViewToUint8Array = function(dataView) {
-		// todo: take byte offset and byte length into account
 		return new Uint8Array(dataView.buffer, dataView.byteOffset, dataView.byteLength);
 	};
 	
@@ -49,7 +48,7 @@ const WebBluetooth = (function() {
 
 	// define util object that we can point to from class
 	const util = {
-		dataViewToText,
+		dataViewToString,
 		dataViewToUint8Array,
 	};
 
@@ -117,8 +116,8 @@ const WebBluetooth = (function() {
 
 
 		/**
-		* 
-		* @returns {undefined}
+		* get the device's name
+		* @returns {String} Return the name of the device
 		*/
 		get name() {
 			return this._device.name;
@@ -158,7 +157,7 @@ const WebBluetooth = (function() {
 							let value = dataView;
 							if (returnType !== DataView) {
 								if (returnType === String) {
-									value = dataViewToText(dataView);
+									value = dataViewToString(dataView);
 								} else if (returnType === Uint8Array) {
 									value = dataViewToUint8Array(dataView);
 								}
