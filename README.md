@@ -79,4 +79,4 @@ await webBluetooth.writeValue(SERVICE_UUID, CHARACTERISTIC_UUID, writeValue);
 
 ## Methods and properties
 
-Can be found in the [API documentation](./blob/master/API.md)
+Can be found in the [API documentation](../../blob/master/API.md)
