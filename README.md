@@ -51,9 +51,10 @@ Add a listener to you connect button to trigger the connection
 document.getElementById(`connect-btn`).addEventListener('click', async function() {
 	await webBluetooth.connect(options);
 });
+```
 
 You're now connected to the device.
-```
+
 
 
 
