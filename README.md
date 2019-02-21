@@ -5,15 +5,18 @@ A wrapper around the Web Bluetooth API
 
 ## Prerequisites
 
-This API is still experimental. Check the implementation status for your platform and browser: https://github.com/WebBluetoothCG/web-bluetooth/blob/gh-pages/implementation-status.md
+The Web Bluetooth API is still experimental. Check the implementation status for your platform and browser: https://github.com/WebBluetoothCG/web-bluetooth/blob/gh-pages/implementation-status.md
 
 The Web Bluetooth API requires an https connection or a localhost environment to run. A simple Node webserver is included in the repo, but feel free to use any other local webserver.
 
 You'll need a bluetooth device to connect with. In this README I'm using a [Nordic Thingy:52](https://www.nordicsemi.com/Software-and-Tools/Development-Kits/Nordic-Thingy-52).
 
+
+
 ## Getting started
 
 A very basic implementation is shown in _demo/index.html_.
+
 
 ### Connecting to a device
 
@@ -52,6 +55,8 @@ document.getElementById(`connect-btn`).addEventListener('click', async function(
 You're now connected to the device.
 ```
 
+
+
 ### Reading a characteristic value
 Once you're connected to the device, so you can read a _characteristic_'s value:
 
@@ -59,6 +64,8 @@ Once you're connected to the device, so you can read a _characteristic_'s value:
 const CHARACTERISTIC_UUID = 'ef680301-9b35-4933-9b10-52ffa9740042';// this particular UUID is from Thingy's led characteristic
 const readValue = await webBluetooth.readValue(SERVICE_UUID, CHARACTERISTIC_UUID);
 ```
+
+
 
 ### Writing a characteristic value
 Once you're connected to the device, so you can write a _characteristic_'s value. Values need to be passed in as a `Uint8Array`.
@@ -68,3 +75,8 @@ const CHARACTERISTIC_UUID = 'ef680301-9b35-4933-9b10-52ffa9740042';// this parti
 const writeValue = new Uint8Array([2, 2, 74, 208, 7]);// values for led: [mode, color, intensity, delay (LSB), delay (MSB)]
 await webBluetooth.writeValue(SERVICE_UUID, CHARACTERISTIC_UUID, writeValue);
 ```
+
+
+## Methods and properties
+
+Can be found in the [API documentation](./blob/master/API.md)
