@@ -134,7 +134,7 @@ const WebBluetooth = (function() {
 		*/
 		async writeValue(serviceUuid, characteristicUuid, value) {
 			try {
-				const characteristic = await this.getCharacteristic(characteristicUuid, serviceUuid);
+				const characteristic = await this.getCharacteristic(serviceUuid, characteristicUuid);
 				return await characteristic.writeValue(value);
 			} catch(error) {
 				this._error(`Couldn't write value`, error);
@@ -148,7 +148,7 @@ const WebBluetooth = (function() {
 		*/
 		async readValue(serviceUuid, characteristicUuid, returnType = DataView) {
 			try {
-				const characteristic = await this.getCharacteristic(characteristicUuid, serviceUuid);
+				const characteristic = await this.getCharacteristic(serviceUuid, characteristicUuid);
 				if (characteristic.properties.read) {
 					characteristic.oncharacteristicvaluechanged = ((e) => {
 						// console.log('change');
@@ -206,9 +206,11 @@ const WebBluetooth = (function() {
 
 		/**
 		* get a characteristic from the device
+		* @param {string} serviceUuid - The UUID of the service the characteristic belongs to
+		* @param {string} characteristicUuid - The UUID of the characteristic to retrieve
 		* @returns {characteristic}
 		*/
-		async getCharacteristic(characteristicUuid, serviceUuid) {
+		async getCharacteristic(serviceUuid, characteristicUuid) {
 			if (!this.isConnected) {
 				throw new Error('Device not connected');
 			}

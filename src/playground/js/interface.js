@@ -292,7 +292,7 @@
 		const serviceUUID = getUUIDFromString(btnAssociations.serviceUUIDStr);
 		const charUUID = getUUIDFromString(btnAssociations.charUUIDStr);
 
-		const characteristic = await webBluetooth.getCharacteristic(charUUID, serviceUUID);
+		const characteristic = await webBluetooth.getCharacteristic(serviceUUID, charUUID);
 		if (start) {
 			characteristic.addEventListener('characteristicvaluechanged', notificationHandler);
 			characteristic.startNotifications();
@@ -382,7 +382,7 @@
 		const serviceUUID = getUUIDFromString(serviceUUIDString);
 		const charUUID = getUUIDFromString(charUUIDString);
 
-		webBluetooth.getCharacteristic(charUUID, serviceUUID)
+		webBluetooth.getCharacteristic(serviceUUID, charUUID)
 			.then((characteristic) => {
 				setButtonState(charRow.querySelector(`[data-btn-write]`), characteristic.properties.write);
 				setButtonState(charRow.querySelector(`[data-btn-read]`), characteristic.properties.read);
