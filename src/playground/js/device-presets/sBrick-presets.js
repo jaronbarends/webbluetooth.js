@@ -1,3 +1,7 @@
+/*
+* object with presets for pre-populating the form fields in the playground interface
+* for connecting with an sBrick
+*/
 const sBrickPresets = {
 	presetTitle: 'sBrick',
 	services: [],

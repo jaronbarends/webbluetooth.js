@@ -245,8 +245,8 @@ const readHandler = async function(e) {
 
 	// now read value
 	const dataView = await webBluetooth.readValue(serviceUUID, charUUID);
-	const text = webBluetooth.util.dataViewToString(dataView);
-	let uint8Array = webBluetooth.util.dataViewToUint8Array(dataView);
+	const text = webBluetooth.util.transform.dataViewToString(dataView);
+	let uint8Array = webBluetooth.util.transform.dataViewToUint8Array(dataView);
 
 	if (btnAssociations.valueType === 'hex') {
 		// then convert each value to hex
@@ -346,7 +346,7 @@ const notificationHandler = function(e) {
 
 	if (valueInput) {
 		const uint8Array = new Uint8Array(dataView.buffer);
-		const text = webBluetooth.util.dataViewToString(dataView);
+		const text = webBluetooth.util.transform.dataViewToString(dataView);
 		valueInput.value = `${text} [ ${uint8Array.join(' ')} ]`;
 	}
 };
@@ -492,7 +492,7 @@ const createServiceFormRow = function(firstRow, service, iServ) {
 	serviceRow.querySelector('[data-service-description]').innerHTML = service.description || '';
 
 	// now loop through characteristics
-	const characteristicsList = serviceRow.querySelector('[data-characteristics-list]')
+	const characteristicsList = serviceRow.querySelector('[data-characteristics-list]');
 	const firstCharRow = characteristicsList.querySelector('li');
 
 	if (service.characteristics) {
@@ -589,11 +589,10 @@ const setDevicePresets = function() {
 		while (serviceList.hasChildNodes()) {
 			serviceList.removeChild(serviceList.lastChild);
 			}// empty the list
-		const firstRow = document.getElementById(`services-list-clone-src`).querySelector('[data-service-row]').cloneNode(true);
-		serviceList.appendChild(firstRow);
 
 		const allServices = services.concat(optionalServices);
 		allServices.forEach((service, i) => {
+			const firstRow = document.getElementById(`services-list-clone-src`).querySelector('[data-service-row]').cloneNode(true);
 			const serviceRow = createServiceFormRow(firstRow, service, i);
 			serviceList.appendChild(serviceRow);
 		});

@@ -1,3 +1,7 @@
+/*
+* object with presets for pre-populating the form fields in the playground interface
+* for connecting with a Nordic Thingy:52
+*/
 const thingyPresets = {
 	presetTitle: 'Thingy',
 	namePrefix: 'Thingy',
@@ -9,6 +13,10 @@ const thingyPresets = {
 				{
 					uuid: 'ef680107-9b35-4933-9b10-52ffa9740042',// firmware version
 					description: 'firmware version'
+				},
+				{
+					uuid: 'ef680101-9b35-4933-9b10-52ffa9740042', // name
+					description: 'name'
 				}
 			]
 		},

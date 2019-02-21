@@ -1,9 +1,7 @@
 /*
-* set of utility functions for working with demo interface
+* set of utility functions for working with playground interface
 */
 
-// tell jshint about globals (they should remain commented out)
-/* globals zup */ //Tell jshint zup exists as global var
 
 /**
 * get form row for a characteristic
@@ -39,7 +37,6 @@ const getBtnAssociations = function(btn) {
 		valueType,
 	};
 };
-
 
 
 /**

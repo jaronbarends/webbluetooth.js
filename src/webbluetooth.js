@@ -1,33 +1,4 @@
-//-- start utitility functions --
-
-
-	/**
-	* convert the numbers in a dataView to text
-	* @returns {undefined}
-	*/
-	const dataViewToString = function(dataView) {
-		const uint8Array = dataViewToUint8Array(dataView);
-		const decoder = new TextDecoder('utf-8');
-		return decoder.decode(uint8Array);
-	};
-
-
-	/**
-	* get the uint8 array for the dataView's on a buffer, taking byte offset and byte length into account
-	* @returns {undefined}
-	*/
-	const dataViewToUint8Array = function(dataView) {
-		return new Uint8Array(dataView.buffer, dataView.byteOffset, dataView.byteLength);
-	};
-
-
-	// define util object that we can point to from class
-	const util = {
-		dataViewToString,
-		dataViewToUint8Array,
-	};
-
-//-- End uitility functions --
+import util from './util/util.js';
 
 export default class WebBluetooth {
 	constructor() {
@@ -42,13 +13,13 @@ export default class WebBluetooth {
 	* connect with a peripheral device
 	* for security reasons, every service you want to use, MUST be specified in either options.filters.services or options.optionalServices
 	* https://webbluetoothcg.github.io/web-bluetooth/#dom-requestdeviceoptions-optionalservices
-	* @param {object} [options={acceptAllDevices:true}]
-	* @param {array} [options.filters] - Filters to apply on returned list of devices
-	* @param {array} [options.filters.services] - Array of UUIDs of services the device has to advertise
-	* @param {string} [options.filters.name] - The name of the device
-	* @param {string} [options.filters.namePrefix] - The starting characters of the device name
-	* @param {array} [options.optionalServices] - Array of UUIDs of optional services the device has to offer
-	* @returns {boolean}
+	* @param {Object} [options={acceptAllDevices:true}]
+	* @param {Array} [options.filters] - Filters to apply on returned list of devices
+	* @param {Array} [options.filters.services] - Array of UUIDs of services the device has to advertise
+	* @param {String} [options.filters.name] - The name of the device
+	* @param {String} [options.filters.namePrefix] - The starting characters of the device name
+	* @param {Array} [options.optionalServices] - Array of UUIDs of optional services the device has to offer
+	* @returns {Promise} Promise resolving to Boolean
 	*/
 	async connect(options={acceptAllDevices:true}) {
 		this._resetAll();
@@ -85,7 +56,7 @@ export default class WebBluetooth {
 
 	/**
 	* check if device is connected
-	* @returns {undefined}
+	* @returns {Boolean}
 	*/
 	get isConnected() {
 		return this._device && this._device.gatt.connected;
@@ -103,10 +74,10 @@ export default class WebBluetooth {
 
 	/**
 	* write a value to a characteristic
-	* @param {string} serviceUuid - The UUID of the service the characteristic belongs to
-	* @param {string} characteristicUuid - The UUID of the characteristic to write to
-	* @param {number} vale - The value to write
-	* @returns {undefined}
+	* @param {String} serviceUuid - The UUID of the service the characteristic belongs to
+	* @param {String} characteristicUuid - The UUID of the characteristic to write to
+	* @param {Number} value - The value to write
+	* @returns {Promise} Promise resolving to value
 	*/
 	async writeValue(serviceUuid, characteristicUuid, value) {
 		try {
@@ -119,24 +90,24 @@ export default class WebBluetooth {
 
 
 	/**
-	* 
-	* @returns {undefined}
+	* read a value from a characteristic
+	* @param {String} serviceUuid - The UUID of the service the characteristic belongs to
+	* @param {String} characteristicUuid - The UUID of the characteristic to read from
+	* @param {dataType} [returnType] - The data type of the return value DataView, String or Uint8Array
+	* @returns {Promise} Promise resolving to value (DataView, String or Array)
 	*/
 	async readValue(serviceUuid, characteristicUuid, returnType = DataView) {
 		try {
 			const characteristic = await this.getCharacteristic(serviceUuid, characteristicUuid);
 			if (characteristic.properties.read) {
-				characteristic.oncharacteristicvaluechanged = ((e) => {
-					// console.log('change');
-				});
 				return await characteristic.readValue()
 					.then((dataView) => {
 						let value = dataView;
 						if (returnType !== DataView) {
 							if (returnType === String) {
-								value = dataViewToString(dataView);
+								value = util.transform.dataViewToString(dataView);
 							} else if (returnType === Uint8Array) {
-								value = dataViewToUint8Array(dataView);
+								value = this.util.transform.dataViewToUint8Array(dataView);
 							}
 						}
 						return value;
@@ -156,7 +127,8 @@ export default class WebBluetooth {
 
 	/**
 	* get a characteristic from the device
-	* @returns {service}
+	* @param {String | Number} serviceUuid - The UUID of the service to retrieve
+	* @returns {Promise} Promise resolving to BluetoothGATTService
 	*/
 	async getService(serviceUuid) {
 		if (!this.isConnected) {
@@ -184,7 +156,7 @@ export default class WebBluetooth {
 	* get a characteristic from the device
 	* @param {string} serviceUuid - The UUID of the service the characteristic belongs to
 	* @param {string} characteristicUuid - The UUID of the characteristic to retrieve
-	* @returns {characteristic}
+	* @returns {Promise} Promise resolving to BluetoothGATTCharacteristic
 	*/
 	async getCharacteristic(serviceUuid, characteristicUuid) {
 		if (!this.isConnected) {
@@ -225,11 +197,11 @@ export default class WebBluetooth {
 	
 	/**
 	* get a string with characteristic's operations and their value (read, write, notify)
-	* @param {characteristic} ch - The characteristic
+	* @param {characteristic} char - The characteristic
 	* @returns {undefined}
 	*/
-	_getOperationsString(ch) {
-		return `Read: ${ch.properties.read}; Write: ${ch.properties.write}; Notify: ${ch.properties.notify}`;
+	_getOperationsString(characteristic) {
+		return `Read: ${characteristic.properties.read}; Write: ${characteristic.properties.write}; Notify: ${characteristic.properties.notify}`;
 	};
 
 
