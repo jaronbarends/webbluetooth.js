@@ -1,9 +1,10 @@
 
-import WebBluetooth from '../../webbluetooth.js';
+import WebBluetooth from '../../WebBluetooth.js';
 import devicePresets from './device-presets/devices.js';
 import interfaceUtil from './interface-util.js';
 
 let webBluetooth;
+let device;
 const connectionDetailsElm = document.getElementById(`connection-details`);
 const statusElm = document.getElementById(`connection-status`);
 const deviceNameElm = document.getElementById(`connection-device-name`);
@@ -14,6 +15,7 @@ const disconnectBtn = document.getElementById('btn--disconnect');
 let currPreset = null;
 let currPresetIdx = 0;
 currPreset = devicePresets[currPresetIdx];
+
 
 
 /**
@@ -111,7 +113,7 @@ const getUUIDFromString = function(str) {
 const connectHandler = async function(e) {
 	e.preventDefault();
 	const options = getConnectionOptions();
-	await webBluetooth.connect(options);
+	device = await webBluetooth.connect(options);
 	const isConnected = webBluetooth.isConnected;
 	if (isConnected) {
 		setAllCharacteristicPermissions();

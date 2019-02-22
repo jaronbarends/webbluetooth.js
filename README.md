@@ -7,7 +7,10 @@ A wrapper around the Web Bluetooth API
 
 The Web Bluetooth API is still experimental. Check the implementation status for your platform and browser: https://github.com/WebBluetoothCG/web-bluetooth/blob/gh-pages/implementation-status.md
 
-The Web Bluetooth API requires an https connection or a localhost environment to run. A simple Node webserver is included in the repo, but feel free to use any other local webserver.
+The Web Bluetooth API requires an https connection or a localhost environment to run. A simple Node webserver is included in the repo, but feel free to use any other local webserver. You can run the webserver by opening a command window in the repo's root folder and type
+```
+node webserver.js
+```
 
 You'll need a bluetooth device to connect with. In this README I'm using a [Nordic Thingy:52](https://www.nordicsemi.com/Software-and-Tools/Development-Kits/Nordic-Thingy-52).
 
