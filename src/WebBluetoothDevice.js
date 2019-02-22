@@ -6,16 +6,13 @@
 * It abstracts away some of the intricacies
 * around gatt server, services and characteristics
 */
-
-import util from './util/util.js';
-
 export default class WebBluetoothDevice {
 	constructor(gattServer, connectionOptions, webBluetooth) {
 		this._resetDeviceEnvironment();
 		this._debug = true;
 		this._webBluetooth = webBluetooth;
 		this._gattServer = gattServer;
-		this._device = gattServer.device;
+		this._btDevice = gattServer.device;
 		this._connectionOptions = connectionOptions;
 		this.util = this._webBluetooth.util;
 
@@ -42,8 +39,8 @@ export default class WebBluetoothDevice {
 		}
 
 		try {
-			this._device = await navigator.bluetooth.requestDevice(options);
-			let gattServer = await this._device.gatt.connect();
+			this._btDevice = await navigator.bluetooth.requestDevice(options);
+			let gattServer = await this._btDevice.gatt.connect();
 			this._gattServer = gattServer;
 
 			let btDevice = new WebBluetoothDevice(gattServer, options)
@@ -61,7 +58,7 @@ export default class WebBluetoothDevice {
 	*/
 	disconnect() {
 		if (this.isConnected) {
-			this._device.gatt.disconnect();
+			this._btDevice.gatt.disconnect();
 			this._resetDeviceEnvironment();
 		} else {
 			console.warn(`Device was not connected`)
@@ -74,9 +71,10 @@ export default class WebBluetoothDevice {
 	* @returns {Boolean}
 	*/
 	get isConnected() {
-		// return this._device && this._device.gatt.connected;
+		// return this._btDevice && this._btDevice.gatt.connected;
 		return this._gattServer && this._gattServer.connected;
 	};
+
 
 	/**
 	* get this devices gattServer
@@ -92,7 +90,7 @@ export default class WebBluetoothDevice {
 	* @returns {String} Return the name of the device
 	*/
 	get name() {
-		return this._device.name;
+		return this._btDevice.name;
 	};
 
 
@@ -144,8 +142,11 @@ export default class WebBluetoothDevice {
 		}
 	};
 
-	get device() {
-		return this._device
+	/*
+	* get the "real" BluetoothDevice object
+	*/
+	get btDevice() {
+		return this._btDevice
 	}
 
 
@@ -213,7 +214,7 @@ export default class WebBluetoothDevice {
 	*/
 	_resetDeviceEnvironment() {
 		this._webBluetooth = null;
-		this._device = null;
+		this._btDevice = null;
 		this._gattServer = null;
 		this._services = new Map();// all services we've connected with
 		this._characteristics = new Map();// all characteristics we've found
