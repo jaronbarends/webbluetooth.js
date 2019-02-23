@@ -31,8 +31,8 @@ export default class WebBluetooth {
 		}
 
 		try {
-			const btDevice = await navigator.bluetooth.requestDevice(options);
-			const gattServer = await btDevice.gatt.connect();
+			const deviceObj = await navigator.bluetooth.requestDevice(options);
+			const gattServer = await deviceObj.gatt.connect();
 
 			// create a technically less correct, but better understandable device object
 			const device = new WebBluetoothDevice(gattServer, options, this);
@@ -63,13 +63,10 @@ export default class WebBluetooth {
 	* @returns {undefined}
 	*/
 	disconnectAll() {
-		
+		this._devices.forEach((device) => {
+			this.disconnect(device);
+		});
 	};
-
-	
-	get util() {
-		return this._util;
-	}
 
 
 	/**
@@ -77,8 +74,20 @@ export default class WebBluetooth {
 	* @returns {undefined}
 	*/
 	_addDevice(device) {
-		
+		const deviceId = device.id;
+		this._devices.set(deviceId, device);
+		device.addEventListener('gattserverdisconnected', () => {
+			this._devices.delete(deviceId);
+		});
 	};
+
+
+	
+	//-- Start getters
+
+	get util() {
+		return this._util;
+	}
 
 
 

@@ -118,7 +118,7 @@ const connectHandler = async function(e) {
 	const isConnected = device.isConnected;
 	if (isConnected) {
 		setAllCharacteristicPermissions();
-		device.btDevice.addEventListener('gattserverdisconnected', disconnectHandler);
+		device.deviceObj.addEventListener('gattserverdisconnected', disconnectHandler);
 	}
 	setConnectionStatus();
 };
@@ -140,8 +140,7 @@ const disconnectBtnHandler = function(e) {
 * @returns {undefined}
 */
 const disconnectHandler = function(e) {
-	console.log(e);
-	device.btDevice.removeEventListener('gattserverdisconnected', disconnectHandler);
+	device.deviceObj.removeEventListener('gattserverdisconnected', disconnectHandler);
 	setConnectionStatus();
 	disableAllCharacteristicButtons();
 };
