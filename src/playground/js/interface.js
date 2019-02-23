@@ -26,7 +26,7 @@ currPreset = devicePresets[currPresetIdx];
 const initConnectButtons = function() {
 	// connection buttons are one-offs
 	connectBtn.addEventListener('click', connectHandler);
-	disconnectBtn.addEventListener('click', disconnectHandler);
+	disconnectBtn.addEventListener('click', disconnectBtnHandler);
 };
 
 
@@ -118,7 +118,7 @@ const connectHandler = async function(e) {
 	const isConnected = device.isConnected;
 	if (isConnected) {
 		setAllCharacteristicPermissions();
-		device.btDevice.addEventListener('gattserverdisconnected', disconnectedHandler);
+		device.btDevice.addEventListener('gattserverdisconnected', disconnectHandler);
 	}
 	setConnectionStatus();
 };
@@ -126,13 +126,12 @@ const connectHandler = async function(e) {
 
 /**
 * handle disconnecting device
+* can be triggered by click on button, or by device disconnecting itself
 * @returns {undefined}
 */
-const disconnectHandler = function(e) {
+const disconnectBtnHandler = function(e) {
 	e.preventDefault();
-	webBluetooth.disconnect();
-	setConnectionStatus();
-	disableAllCharacteristicButtons();
+	webBluetooth.disconnect(device);
 };
 
 
@@ -140,9 +139,11 @@ const disconnectHandler = function(e) {
 * handle device disconnected
 * @returns {undefined}
 */
-const disconnectedHandler = function(e) {
-	device.btDevice.removeEventListener('gattserverdisconnected', disconnectedHandler);
+const disconnectHandler = function(e) {
+	console.log(e);
+	device.btDevice.removeEventListener('gattserverdisconnected', disconnectHandler);
 	setConnectionStatus();
+	disableAllCharacteristicButtons();
 };
 
 

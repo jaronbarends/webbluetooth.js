@@ -21,44 +21,12 @@ export default class WebBluetoothDevice {
 
 	
 	/**
-	* connect with a peripheral device
-	* for security reasons, every service you want to use, MUST be specified in either options.filters.services or options.optionalServices
-	* https://webbluetoothcg.github.io/web-bluetooth/#dom-requestdeviceoptions-optionalservices
-	* @param {Object} [options={acceptAllDevices:true}]
-	* @param {Array} [options.filters] - Filters to apply on returned list of devices
-	* @param {Array} [options.filters.services] - Array of UUIDs of services the device has to advertise
-	* @param {String} [options.filters.name] - The name of the device
-	* @param {String} [options.filters.namePrefix] - The starting characters of the device name
-	* @param {Array} [options.optionalServices] - Array of UUIDs of optional services the device has to offer
-	* @returns {Promise} Promise resolving to Boolean
-	*/
-	async connect(options={acceptAllDevices:true}) {
-		this._resetDeviceEnvironment();
-		if (!options.filters) {
-			options.acceptAllDevices = true;
-		}
-
-		try {
-			this._btDevice = await navigator.bluetooth.requestDevice(options);
-			let gattServer = await this._btDevice.gatt.connect();
-			this._gattServer = gattServer;
-
-			let btDevice = new WebBluetoothDevice(gattServer, options)
-			return btDevice;
-		} catch(error) {
-			this._error(`Something went wrong while connecting`, error);
-			return false;
-		}
-	}
-
-
-	/**
 	* disconnect the device
 	* @returns {undefined}
 	*/
 	disconnect() {
 		if (this.isConnected) {
-			this._btDevice.gatt.disconnect();
+			this._gattServer.disconnect();
 			this._resetDeviceEnvironment();
 		} else {
 			console.warn(`Device was not connected`)
