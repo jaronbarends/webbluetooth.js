@@ -44,6 +44,7 @@ export default class WebBluetoothDevice {
 		* @param {Number} value - The value to write
 		* @returns {Promise} Promise resolving to value
 		*/
+		// TODO: MAKE IT POSSIBLE TO ADD CHARACTERISTIC AS FIRST VALUE
 		async writeValue(serviceUuid, characteristicUuid, value) {
 			try {
 				const characteristic = await this.getCharacteristic(serviceUuid, characteristicUuid);

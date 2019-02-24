@@ -7,20 +7,6 @@ const thingyPresets = {
 	namePrefix: 'Thingy',
 	optionalServices: [
 		{
-			uuid: 'ef680100-9b35-4933-9b10-52ffa9740042', //Thingy Configuration Service
-			description: 'configuration service',
-			characteristics: [
-				{
-					uuid: 'ef680107-9b35-4933-9b10-52ffa9740042',// firmware version
-					description: 'firmware version'
-				},
-				{
-					uuid: 'ef680101-9b35-4933-9b10-52ffa9740042', // name
-					description: 'name'
-				}
-			]
-		},
-		{
 			uuid: 'ef680200-9b35-4933-9b10-52ffa9740042', // Thingy Environment Service
 			description: 'environment service',
 			characteristics: [
@@ -40,6 +26,11 @@ const thingyPresets = {
 					exampleValue: '02 02 4a d0 07',
 					exampleValueIsDecimal: false,
 					valueExplanation: 'mode - color - intensity - delay LSB - delay MSB'
+				},
+				{
+					uuid: 'ef680302-9b35-4933-9b10-52ffa9740042',// button
+					description: 'button characteristic',
+					valueExplanation: ''
 				}
 			]
 		},

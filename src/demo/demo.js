@@ -64,8 +64,8 @@ document.getElementById(`write-btn--green`).addEventListener('click', async func
 const notificationHandler = function(e) {
 	const characteristic = e.target;
 	const dataView = characteristic.value;
-	const Uint8Array = webBluetooth.util.transform.dataViewToUint8Array(dataView);
-	console.log('value:', Uint8Array);
+	const uint8Array = webBluetooth.util.transform.dataViewToUint8Array(dataView);
+	console.log('value:', uint8Array);
 }
 
 
