@@ -171,13 +171,13 @@ export default class WebBluetoothDevice {
 			return this._deviceObj.id;
 		};
 
+
 		/**
-		* check if device is connected
-		* @returns {Boolean}
+		* get the device's name
+		* @returns {String} Return the name of the device
 		*/
-		get isConnected() {
-			// return this._deviceObj && this._deviceObj.gatt.connected;
-			return this._gattServer && this._gattServer.connected;
+		get name() {
+			return this._deviceObj.name;
 		};
 
 
@@ -190,21 +190,22 @@ export default class WebBluetoothDevice {
 		}
 
 
-		/**
-		* get the device's name
-		* @returns {String} Return the name of the device
-		*/
-		get name() {
-			return this._deviceObj.name;
-		};
-
-
 		/*
 		* get the "real" BluetoothDevice object
 		*/
 		get deviceObj() {
 			return this._deviceObj
 		}
+
+		
+		/**
+		* check if device is connected
+		* @returns {Boolean}
+		*/
+		get isConnected() {
+			// return this._deviceObj && this._deviceObj.gatt.connected;
+			return this._gattServer && this._gattServer.connected;
+		};
 	
 	//-- End getters / setters ----
 

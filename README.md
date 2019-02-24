@@ -51,9 +51,9 @@ Note that when you're connecting to the device, you **must** specify the UUID(s)
 
 Add a listener to you connect button to trigger the connection
 ```javascript
-let device;
+let myDevice;
 document.getElementById(`connect-btn`).addEventListener('click', async function() {
-	device = await webBluetooth.connect(options);
+	myDevice = await webBluetooth.connect(options);
 });
 ```
 
@@ -67,7 +67,7 @@ Once you're connected to the device, so you can read a _characteristic_'s value:
 
 ```javascript
 const CHARACTERISTIC_UUID = 'ef680301-9b35-4933-9b10-52ffa9740042';// this particular UUID is from Thingy's led characteristic
-const readValue = await device.readValue(SERVICE_UUID, CHARACTERISTIC_UUID);
+const readValue = await myDevice.readValue(SERVICE_UUID, CHARACTERISTIC_UUID);
 ```
 
 
@@ -78,7 +78,7 @@ Once you're connected to the device, so you can write a _characteristic_'s value
 ```javascript
 const CHARACTERISTIC_UUID = 'ef680301-9b35-4933-9b10-52ffa9740042';// this particular UUID is from Thingy's led characteristic
 const writeValue = new Uint8Array([2, 2, 74, 208, 7]);// values for led: [mode, color, intensity, delay (LSB), delay (MSB)]
-await device.writeValue(SERVICE_UUID, CHARACTERISTIC_UUID, writeValue);
+await myDevice.writeValue(SERVICE_UUID, CHARACTERISTIC_UUID, writeValue);
 ```
 
 

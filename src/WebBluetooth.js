@@ -91,10 +91,6 @@ export default class WebBluetooth {
 
 
 
-
-
-
-
 	/**
 	* log an error to the console
 	* @param {string} msg - Your custom error message
