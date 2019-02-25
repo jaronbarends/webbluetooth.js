@@ -227,11 +227,21 @@ export default class WebBluetoothDevice {
 
 
 	/**
-	* get the services that were requested at connection time
+	* get the services that were requested at connection time and cache them
 	* @returns {undefined}
 	*/
 	_getRequestedServices() {
-		
+		const requiredServices = (this._connectionOptions.filters && this._connectionOptions.filters.services) ? this._connectionOptions.filters : [];
+		const optionalServices = this._connectionOptions.optionalServices || [];
+
+		const reqServicesPromises = [];
+		requiredServices.forEach((service) => {
+			// no await, because we want it fast
+			reqServicesPromises.push(this.getService(service));
+		});
+		Promise.all(reqServicesPromises)
+			.then(() => { console.log('got them all') })
+			.catch((err) => console.log(err.message));
 	};
 
 	
