@@ -304,5 +304,5 @@ select {
 }
 
 .clone-src {
-	display: none;
+	/* display: none; */
 }

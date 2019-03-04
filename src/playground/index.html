@@ -80,7 +80,7 @@
 
 		</form>
 
-		<div id="clone-src" class="clone-src">
+		<template id="service-row-template">
 			<ul id="services-list-clone-src" class="services-list">
 
 				<li class="service-row" data-service-row>
@@ -89,41 +89,43 @@
 					<p class="explanation" data-service-description></p>
 
 					<ul class="characteristics-list u-list--bare" data-characteristics-list>
-						<li class="characteristic" data-characteristic-row data-characteristic-row-id="0-0">
-							<ul class="characteristic__controls u-list--bare">
-
-								<li class="characteristic__control">
-									<label for="target-characteristic-0-0-uuid" data-characteristic-label>characteristic <span class="weak">(valid <a href="#about-uuids">UUID</a>)</span></label>
-									<!-- SBrick drive -->
-									<input class="input--uuid" id="target-characteristic-0-0-uuid" type="text" data-characteristic-input>
-									<p class="explanation" data-characteristic-description></p>
-								</li>
-
-								<li class="characteristic__control">
-									<label for="target-characteristic-0-0-value" data-value-label>value <span class="weak">
-										(space separated Uint8Array)</span></label>
-									<input id="target-characteristic-0-0-value" type="text" data-value-input>
-									<div class="value-radix weak">
-										<input type="radio" name="value-radix-0-0" id="value-radix-hex-0-0" value="hex" data-radix-input-hex checked>
-										<label for="value-radix-hex-0-0" class="value-radix__label" data-radix-label-hex>hex (00-ff)</label>
-										<input type="radio" name="value-radix-0-0" id="value-radix-dec-0-0" value="dec" data-radix-input-dec>
-										<label for="value-radix-dec-0-0" class="value-radix__label" data-radix-label-dec>decimal (0-255)</label>
-									</div>
-
-									<p class="explanation" data-value-explanation></p>
-								</li>
-								<li class="characteristic__control characteristic__control--buttons">
-									<button class="btn btn--write" data-btn-write disabled>write</button>
-									<button class="btn btn--read" data-btn-read disabled>read</button>
-									<button class="btn btn--notify" data-btn-notify disabled>notify</button>
-								</li>
-								
-							</ul>
-						</li>
 					</ul>
 				</li>
 			</ul>
-		</div><!-- /.clone-src -->
+		</template><!-- / #service-row-template -->
+
+		<template id="characteristic-controls-template">
+			<li class="characteristic" data-characteristic-row data-characteristic-row-id="0-0">
+				<ul class="characteristic__controls u-list--bare">
+
+					<li class="characteristic__control">
+						<label for="target-characteristic-0-0-uuid" data-characteristic-label>characteristic <span class="weak">(valid <a href="#about-uuids">UUID</a>)</span></label>
+						<input class="input--uuid" id="target-characteristic-0-0-uuid" type="text" data-characteristic-input>
+						<p class="explanation" data-characteristic-description></p>
+					</li>
+
+					<li class="characteristic__control">
+						<label for="target-characteristic-0-0-value" data-value-label>value <span class="weak">
+							(space separated Uint8Array)</span></label>
+						<input id="target-characteristic-0-0-value" type="text" data-value-input>
+						<div class="value-radix weak">
+							<input type="radio" name="value-radix-0-0" id="value-radix-hex-0-0" value="hex" data-radix-input-hex checked>
+							<label for="value-radix-hex-0-0" class="value-radix__label" data-radix-label-hex>hex (00-ff)</label>
+							<input type="radio" name="value-radix-0-0" id="value-radix-dec-0-0" value="dec" data-radix-input-dec>
+							<label for="value-radix-dec-0-0" class="value-radix__label" data-radix-label-dec>decimal (0-255)</label>
+						</div>
+
+						<p class="explanation" data-value-explanation></p>
+					</li>
+					<li class="characteristic__control characteristic__control--buttons">
+						<button class="btn btn--write" data-btn-write disabled>write</button>
+						<button class="btn btn--read" data-btn-read disabled>read</button>
+						<button class="btn btn--notify" data-btn-notify disabled>notify</button>
+					</li>
+					
+				</ul>
+			</li>
+		</template><!-- /#characteristic-controls-template -->
 
 		<a name="about-uuids"></a>
 		<h2>About UUIDs (Universally Unique IDentifiers)</h2>

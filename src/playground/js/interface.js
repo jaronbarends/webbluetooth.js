@@ -428,14 +428,9 @@ const setButtonState  = function(btn, status) {
 * create a form row for a characteristic
 * @returns {undefined}
 */
-const createCharacteristicFormRow = function(firstCharRow, characteristicObj, serviceUUID, iChar, iServ) {
-	let charRow;
-	if (iChar === 0) {
-		charRow = firstCharRow;
-	} else {
-		charRow = firstCharRow.cloneNode(true);
-	}
-
+const createCharacteristicFormRow = function(charRowTemplate, characteristicObj, serviceUUID, iChar, iServ) {
+	const docFragment = charRowTemplate.cloneNode(true);
+	const charRow = docFragment.querySelector('li');
 	const rowId = `${iServ}-${iChar}`;
 	const charInputId = `target-characteristic-${rowId}-uuid`;
 	const valueInputId = `target-characteristic-${rowId}-value`;
@@ -496,11 +491,11 @@ const createServiceFormRow = function(firstRow, service, iServ) {
 
 	// now loop through characteristics
 	const characteristicsList = serviceRow.querySelector('[data-characteristics-list]');
-	const firstCharRow = characteristicsList.querySelector('li');
+	const charRowTemplate = document.getElementById(`characteristic-controls-template`).content;
 
 	if (service.characteristics) {
 		service.characteristics.forEach((characteristic, iChar) => {
-			const charRow = createCharacteristicFormRow(firstCharRow, characteristic, service.uuid, iChar, iServ);
+			const charRow = createCharacteristicFormRow(charRowTemplate, characteristic, service.uuid, iChar, iServ);
 			characteristicsList.appendChild(charRow);
 		});
 	}
@@ -595,7 +590,7 @@ const setDevicePresets = function() {
 
 		const allServices = services.concat(optionalServices);
 		allServices.forEach((service, i) => {
-			const firstRow = document.getElementById(`services-list-clone-src`).querySelector('[data-service-row]').cloneNode(true);
+			const firstRow = document.getElementById(`service-row-template`).content.querySelector('[data-service-row]').cloneNode(true);
 			const serviceRow = createServiceFormRow(firstRow, service, i);
 			serviceList.appendChild(serviceRow);
 		});
