@@ -39,16 +39,23 @@ export default class WebBluetoothDevice {
 
 		/**
 		* write a value to a characteristic
+		* may be called with two possible parameter comibinations
+		* 1) characteristic and value
+		* @param {BluetoothRemoteGATTCharacteristic} characteristicOrServiceUUID - The characteristic, or the UUID of the service the characteristic belongs to
+		* @param {Number} characteristicUUIDorValue - The value to write
+		* @param {Number} [value] - Will be ignored (only necessary when called in other way)
+		* 2) serviceUUID, characteristicUUID, value
 		* @param {String} serviceUuid - The UUID of the service the characteristic belongs to
 		* @param {String} characteristicUuid - The UUID of the characteristic to write to
 		* @param {Number} value - The value to write
 		* @returns {Promise} Promise resolving to value
 		*/
-		// TODO: MAKE IT POSSIBLE TO ADD CHARACTERISTIC AS FIRST VALUE
-		async writeValue(serviceUuid, characteristicUuid, value) {
+		// async writeValue(serviceUuid, characteristicUuid, value) {
+		async writeValue(characteristicOrServiceUUID, characteristicUUIDorValue, value) {
+			const characteristic = await this._getCharacteristicFromUnkownParam(characteristicOrServiceUUID, characteristicUUIDorValue);
+			const theValue = (characteristicOrServiceUUID instanceof BluetoothRemoteGATTCharacteristic) ? characteristicUUIDorValue : value;
 			try {
-				const characteristic = await this.getCharacteristic(serviceUuid, characteristicUuid);
-				return await characteristic.writeValue(value);
+				return await characteristic.writeValue(theValue);
 			} catch(error) {
 				this._error(`Couldn't write value`, error);
 			}
