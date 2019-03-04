@@ -57,14 +57,23 @@ export default class WebBluetoothDevice {
 
 		/**
 		* read a value from a characteristic
-		* @param {String} serviceUuid - The UUID of the service the characteristic belongs to
-		* @param {String} characteristicUuid - The UUID of the characteristic to read from
-		* @param {dataType} [returnType] - The data type of the return value DataView, String or Uint8Array
+		* may be called with two possible parameter comibinations
+		* 1) characteristic and optional return type
+		* @param {BluetoothRemoteGATTCharacteristic} characteristicOrServiceUUID - The characteristic, or the UUID of the service the characteristic belongs to
+		* @param {dataType} [characteristicUUIDorReturnType] - The data type of the return value: DataView, String or Uint8Array
+		* @param {dataType} [returnType] - Will be ignored (only necessary when called in other way)
+		* 2) serviceUUID, characteristicUUID, optional return type (should be used if you don't have reference to characteristic yet)
+		* @param {String} characteristicOrServiceUUID - The UUID of the service the characteristic belongs to
+		* @param {String} characteristicUUIDorReturnType - The UUID of the characteristic to read from
+		* @param {dataType} [returnType] - The data type of the return value: DataView, String or Uint8Array
 		* @returns {Promise} Promise resolving to value (DataView, String or Array)
 		*/
-		async readValue(serviceUuid, characteristicUuid, returnType = DataView) {
+		async readValue(characteristicOrServiceUUID, characteristicUUIDorReturnType = DataView, returnType = DataView) {
+			// check param types
+			const characteristic = await this._getCharacteristicFromUnkownParam(characteristicOrServiceUUID, characteristicUUIDorReturnType);
+			const returnType = (characteristicOrServiceUUID instanceof BluetoothRemoteGATTCharacteristic) ? characteristicUUIDorReturnType : returnType;
+
 			try {
-				const characteristic = await this.getCharacteristic(serviceUuid, characteristicUuid);
 				if (characteristic.properties.read) {
 					return await characteristic.readValue()
 						.then((dataView) => {
@@ -242,6 +251,27 @@ export default class WebBluetoothDevice {
 		Promise.all(reqServicesPromises)
 			.then(() => { console.log('got them all') })
 			.catch((err) => console.log(err.message));
+	};
+
+
+	/**
+	* readValue and writeValue can both be called with either a characteristic as param, or a serviceUUID and a characteristicUUID to retrieve that characteristic.
+	* this method gets the appropriate characteristic
+	* @param {BluetoothRemoteGATTCharacteristic} characteristicOrServiceUUID
+	* @returns {Promise} Promise resolving to BluetoothGATTCharacteristic
+	*/
+	async _getCharacteristicFromUnkownParam(characteristicOrServiceUUID, characteristicUUID) {
+		let characteristic;
+		if (characteristicOrServiceUUID instanceof BluetoothRemoteGATTCharacteristic) {
+			// we got characteristic and optional returnType
+			characteristic = characteristicOrServiceUUID;
+		} else {
+			// we got serviceUuid and characteristicUuid
+			const serviceUuid = characteristicOrServiceUUID;
+			const characteristicUuid = characteristicUUID;
+			characteristic = await this.getCharacteristic(serviceUuid, characteristicUuid);
+		}
+		return characteristic;
 	};
 
 	
