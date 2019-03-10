@@ -78,7 +78,7 @@ export default class WebBluetoothDevice {
 		async readValue(characteristicOrServiceUUID, characteristicUUIDorReturnType = DataView, returnType = DataView) {
 			// check param types
 			const characteristic = await this._getCharacteristicFromUnkownParam(characteristicOrServiceUUID, characteristicUUIDorReturnType);
-			const returnType = (characteristicOrServiceUUID instanceof BluetoothRemoteGATTCharacteristic) ? characteristicUUIDorReturnType : returnType;
+			returnType = (characteristicOrServiceUUID instanceof BluetoothRemoteGATTCharacteristic) ? characteristicUUIDorReturnType : returnType;
 
 			try {
 				if (characteristic.properties.read) {
