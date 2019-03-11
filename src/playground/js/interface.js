@@ -15,7 +15,7 @@ const disconnectBtn = document.getElementById('btn--disconnect');
 
 // device presets
 let currPreset = null;
-let currPresetIdx = 0;
+let currPresetIdx = 1;
 currPreset = devicePresets[currPresetIdx];
 
 
