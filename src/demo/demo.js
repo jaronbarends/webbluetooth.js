@@ -17,7 +17,7 @@ const options = {
 	filters: [
 		{namePrefix: 'Thingy'}
 	],
-	optionalServices: [SERVICE_UUID_TES]// you MUST specify services in filters or as optionalServices to be able to interact with them
+	optionalServices: [SERVICE_UUID_TUIS, SERVICE_UUID_TES]// you MUST specify services in filters or as optionalServices to be able to interact with them
 };
 
 // add event listeners to all buttons - quite some repitition here, but that makes it easier to grasp ;)
