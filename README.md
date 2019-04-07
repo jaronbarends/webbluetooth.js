@@ -1,6 +1,6 @@
 # WebBluetooth.js
 
-A wrapper around the Web Bluetooth API
+A wrapper around the Web Bluetooth API. Though not entirely correct, the easiest way to think about this class is that is represents a single bluetooth device.
 
 
 ## Prerequisites
@@ -49,10 +49,10 @@ const options = {
 ```
 Note that when you're connecting to the device, you **must** specify the UUID(s) of the _service(s)_ you want to communicate with, otherwise you won't be allowed to access them later. You can pass them in the `options.optionalServices` property, or as an `array` in the `services` property of an object in the `options.filters` `array`. (If you declare `filters` in your `options` object, you must remove the `acceptAllDevices` property )
 
-Add a listener to you connect button to trigger the connection
+Add a listener to your connect button to trigger the connection:
 ```javascript
 document.getElementById(`connect-btn`).addEventListener('click', async function() {
-	await webBluetooth.connect(options);
+	await myDevice.connect(options);
 });
 ```
 
@@ -69,6 +69,15 @@ const CHARACTERISTIC_UUID = 'ef680301-9b35-4933-9b10-52ffa9740042';// this parti
 const readValue = await myDevice.readValue(SERVICE_UUID, CHARACTERISTIC_UUID);
 ```
 
+### Getting a formatted read value
+
+The `read` method by default returns a `DataView` object. You can have make it returning a `String` or `Uint8Array` by passing  in the data type:
+
+```javascript
+const CHARACTERISTIC_UUID = 'ef680301-9b35-4933-9b10-52ffa9740042';// this particular UUID is from Thingy's led characteristic
+const readValueAsUint8Array = await myDevice.readValue(SERVICE_UUID, CHARACTERISTIC_UUID, Uint8Array);// returns value transformed to Uint8Array
+const readValueAsString = await myDevice.readValue(SERVICE_UUID, CHARACTERISTIC_UUID, String);// returns value transformed to String
+```
 
 
 ### Writing a characteristic value
