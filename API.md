@@ -2,9 +2,18 @@
 
 ## Methods
 
+## `constructor`
 
+Create an instance of WebBluetooth class, which can be thought of as a single bluetooth device.
 
-## `myWebBluetooth.connect(options)`
+### Example
+```javascript
+const btDevice = new WebBluetooth();
+```
+
+---
+
+## `btDevice.connect(options)`
 
 Connect to a bluetooth device
 
@@ -14,34 +23,20 @@ Connect to a bluetooth device
 
 ### Returns
 
-A `Promise` resolving to a `WebBluetoothDevice` object
+A `Boolean`;
 
 
 
 ### Example
 ```javascript
-const myDevice = await myWebBluetooth.connect(options);
+await btDevice.connect({acceptAllDevices: true});
 ```
 
 ---
 
-## `myWebBluetooth.disconnect(device)`
+## `btDevice.disconnect()`
 
-Disconnect a bluetooth device
-
-##### Parameters
-
-None
-
-##### Returns
-
-`undefined`
-
----
-
-## `myWebBluetooth.disconnectAll()`
-
-Disconnect all bluetooth devices
+Disconnect the bluetooth device
 
 ##### Parameters
 
@@ -53,24 +48,8 @@ None
 
 ---
 
-# WebBluetoothDevice API
 
-The `WebBluetoothDevice` object isn't meant to be used on its own - it will be returned by `WebBluetooth` when calling its `connect` method.
-
-
-## `myDevice.disconnect()`
-Disconnect the device
-
-### Returns
-
-`undefined`
-
-### Parameters
-None
-
----
-
-## `myDevice.readValue(serviceUUID, characteristicUUID, [returnType])`
+## `btDevice.readValue(serviceUUID, characteristicUUID, [returnType])`
 Read a value from a characteristic
 
 ### Returns
@@ -90,7 +69,7 @@ Getting a `DataView` value:
 ```javascript
 const serviceUUID = 'ef680300-9b35-4933-9b10-52ffa9740042';// Thingy User Interface Service
 const characteristicUUID = 'ef680101-9b35-4933-9b10-52ffa9740042';// Thingy Name characteristic
-const value = await myDevice.readValue(serviceUUID, characteristicUUID);
+const value = await btDevice.readValue(serviceUUID, characteristicUUID);
 console.log(value);// logs: DataView(6) {buffer: (...), byteLength: (...), byteOffset: (...)} <= The original DataView returned by the Web Bluetooth API
 ```
 
@@ -99,7 +78,7 @@ Getting a `Uint8Array` value:
 ```javascript
 const serviceUUID = 'ef680300-9b35-4933-9b10-52ffa9740042';// Thingy User Interface Service
 const characteristicUUID = 'ef680101-9b35-4933-9b10-52ffa9740042';// Thingy Name characteristic
-const value = await myDevice.readValue(serviceUUID, characteristicUUID, Uint8Array);
+const value = await btDevice.readValue(serviceUUID, characteristicUUID, Uint8Array);
 console.log(value);// logs: Uint8Array(6) [84, 104, 105, 110, 103, 121] <= values representing name's characters
 ```
 
@@ -108,13 +87,13 @@ Getting a `String` value:
 ```javascript
 const serviceUUID = 'ef680100-9b35-4933-9b10-52ffa9740042';// Thingy Configuration Service
 const characteristicUUID = 'ef680101-9b35-4933-9b10-52ffa9740042';// Thingy Name characteristic
-const value = await myDevice.readValue(serviceUUID, characteristicUUID, String);
+const value = await btDevice.readValue(serviceUUID, characteristicUUID, String);
 console.log(value);// logs: Thingy <= The actual name of the device
 ```
 
 ---
 
-## `myDevice.writeValue(serviceUUID, characteristicUUID, value)`
+## `btDevice.writeValue(serviceUUID, characteristicUUID, value)`
 
 Read a value from a characteristic
 
@@ -134,12 +113,12 @@ A `Promise` resolving to `undefined`
 const serviceUUID = 'ef680300-9b35-4933-9b10-52ffa9740042';// Thingy User Interface Service
 const characteristicUUID = 'ef680301-9b35-4933-9b10-52ffa9740042';// Thingy Name characteristic
 const value = new Uint8Array[2, 2, 74, 208, 7];
-await myDevice.writeValue(serviceUUID, characteristicUUID, value);
+await btDevice.writeValue(serviceUUID, characteristicUUID, value);
 ```
 
 ---
 
-## `myDevice.getService(serviceUUID)`
+## `btDevice.getService(serviceUUID)`
 
 Get a bluetooth GATT service
 
@@ -155,12 +134,12 @@ A `Promise` resolving to a `BluetoothGATTService` object
 
 ```javascript
 const serviceUUID = 'ef680300-9b35-4933-9b10-52ffa9740042';// Thingy User Interface Service
-const service = await myDevice.getService(serviceUUID);
+const service = await btDevice.getService(serviceUUID);
 ```
 
 ---
 
-## `myDevice.getCharacteristic(serviceUUID, characteristicUUID)`
+## `btDevice.getCharacteristic(serviceUUID, characteristicUUID)`
 
 Get a bluetooth GATT characteristic
 
@@ -178,42 +157,20 @@ A `Promise` resolving to a `BluetoothGATTCharacteristic` object
 ```javascript
 const serviceUUID = 'ef680300-9b35-4933-9b10-52ffa9740042';// Thingy User Interface Service
 const characteristicUUID = 'ef680301-9b35-4933-9b10-52ffa9740042';// Thingy Name characteristic
-const characteristic = await myDevice.getCharacteristic(serviceUUID, characteristicUUID);
+const characteristic = await btDevice.getCharacteristic(serviceUUID, characteristicUUID);
 ```
-
----
-
-## `myDevice.addEventListener(eventName, callback)`
-
-Add an event listener to the device. At the moment only `gattserverdisconnected` is supported. The event listener will be added to the native `BluetoothDevice` object
-
-### Returns
-
-`undefined`
-
-### Parameters
-
-`{String}` **`eventName`** The name of the event to listened to. Only `gattserverdisconnected` is supported
-`{Function}` **`callback`** The callback to be called
-
-### Example
-
-```javascript
-myDevice.addEventListener('gattserverdisconnected', someFunction);
-```
-
 
 ---
 
 ## Properties
 
-## `myDevice.id`
+## `btDevice.id`
 
 This device's `BluetoothDevice` object's `id` property
 
 ---
 
-## `myDevice.name`
+## `btDevice.name`
 
 Get the device's name
 
@@ -223,19 +180,19 @@ A `String`
 
 ---
 
-## `myDevice.gatt`
+## `btDevice.gatt`
 
 This device's `BluetoothGATTRemoteServer` object
 
 ---
 
-## `myDevice.deviceObj`
+## `btDevice.deviceObj`
 
 This device's `BluetoothDevice` object
 
 ---
 
-## `myDevice.isConnected`
+## `btDevice.isConnected`
 
 Checks if the device is connected
 

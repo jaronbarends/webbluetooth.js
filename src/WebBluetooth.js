@@ -36,7 +36,7 @@ export default class WebBluetooth {
 	* @param {String} [options.filters.name] - The name of the device
 	* @param {String} [options.filters.namePrefix] - The starting characters of the device name
 	* @param {Array} [options.optionalServices] - Array of UUIDs of optional services the device has to offer
-	* @returns {Promise} Promise resolving to Boolean
+	* @returns {Boolean}
 	*/
 	async connect(options = {}) {
 		this._resetDeviceEnvironment();

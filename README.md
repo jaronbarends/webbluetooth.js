@@ -35,9 +35,9 @@ In your main js file, import the `WebBluetooth` class and instantiate it:
 // import the WebBluetooth class
 import WebBluetooth from '../webBluetooth.js';
 // create an instance
-const webBluetooth = new WebBluetooth();
+const myDevice = new WebBluetooth();
 ```
-Make sure that you also include the file `WebBluetoothDevice.js` and the _util_ folder in your project - these will be imported by the `WebBluetooth` class.
+Make sure that you also include the _util_ folder in your project - this will be imported by the `WebBluetooth` class.
 
 Declare the connection options; this is the [`options`](https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/requestDevice#Parameters) object that is expected by the Web Bluetooth API's `requestDevice` method. (`requestDevice` had been abstracted away in webbluetooth.js's `connect` method)
 ```javascript
@@ -51,9 +51,8 @@ Note that when you're connecting to the device, you **must** specify the UUID(s)
 
 Add a listener to you connect button to trigger the connection
 ```javascript
-let myDevice;
 document.getElementById(`connect-btn`).addEventListener('click', async function() {
-	myDevice = await webBluetooth.connect(options);
+	await webBluetooth.connect(options);
 });
 ```
 
