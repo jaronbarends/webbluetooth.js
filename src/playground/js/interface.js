@@ -114,11 +114,12 @@ const getUUIDFromString = function(str) {
 const connectHandler = async function(e) {
 	e.preventDefault();
 	const options = getConnectionOptions();
-	device = await webBluetooth.connect(options);
-	const isConnected = device.isConnected;
+	await webBluetooth.connect(options);
+	const isConnected = webBluetooth.isConnected;
+	console.log('isConnected:', isConnected);
 	if (isConnected) {
 		setAllCharacteristicPermissions();
-		device.deviceObj.addEventListener('gattserverdisconnected', disconnectHandler);
+		webBluetooth.deviceObj.addEventListener('gattserverdisconnected', disconnectHandler);
 	}
 	setConnectionStatus();
 };
@@ -140,7 +141,7 @@ const disconnectBtnHandler = function(e) {
 * @returns {undefined}
 */
 const disconnectHandler = function(e) {
-	device.deviceObj.removeEventListener('gattserverdisconnected', disconnectHandler);
+	webBluetooth.deviceObj.removeEventListener('gattserverdisconnected', disconnectHandler);
 	setConnectionStatus();
 	disableAllCharacteristicButtons();
 };
@@ -207,7 +208,8 @@ const getConnectionOptions = function() {
 * @returns {undefined}
 */
 const setConnectionStatus = function() {
-	const isConnected = device.isConnected;
+	console.log('setConnectionStatus:', webBluetooth.isConnected);
+	const isConnected = webBluetooth.isConnected;
 	const color = isConnected ? 'green' : 'red';
 	console.log(`%cStatus: ${isConnected ? 'Connected' : 'Disconnected'}`, `color: ${color}`);
 	statusElm.textContent = isConnected ? 'Connected' : 'Not connected';
@@ -215,7 +217,7 @@ const setConnectionStatus = function() {
 	let deviceNameText = '';
 	if (isConnected) {
 		connectionDetailsElm.classList.add('connection-details--is-connected');
-		const deviceName = device.name;
+		const deviceName = webBluetooth.name;
 		if (deviceName) {
 			statusElm.textContent += ' with';
 			deviceNameText = deviceName;
@@ -247,7 +249,7 @@ const readHandler = async function(e) {
 	const charUUID = getUUIDFromString(btnAssociations.charUUIDStr);
 
 	// now read value
-	const dataView = await device.readValue(serviceUUID, charUUID);
+	const dataView = await webBluetooth.readValue(serviceUUID, charUUID);
 	const text = webBluetooth.util.transform.dataViewToString(dataView);
 	let uint8Array = webBluetooth.util.transform.dataViewToUint8Array(dataView);
 
@@ -288,7 +290,7 @@ const writeHandler = async function(e) {
 	const writeValue = new Uint8Array(valuesArray);
 
 	// now write value
-	device.writeValue(serviceUUID, charUUID, writeValue);
+	webBluetooth.writeValue(serviceUUID, charUUID, writeValue);
 };
 
 
@@ -301,7 +303,7 @@ const startOrStopNotifications = async function(btn, start) {
 	const serviceUUID = getUUIDFromString(btnAssociations.serviceUUIDStr);
 	const charUUID = getUUIDFromString(btnAssociations.charUUIDStr);
 
-	const characteristic = await device.getCharacteristic(serviceUUID, charUUID);
+	const characteristic = await webBluetooth.getCharacteristic(serviceUUID, charUUID);
 	if (start) {
 		characteristic.addEventListener('characteristicvaluechanged', notificationHandler);
 		characteristic.startNotifications();
@@ -391,7 +393,8 @@ const setCharacteristicPermissions = function(charUUIDString, charRow, serviceUU
 	const serviceUUID = getUUIDFromString(serviceUUIDString);
 	const charUUID = getUUIDFromString(charUUIDString);
 
-	device.getCharacteristic(serviceUUID, charUUID)
+	// device.getCharacteristic(serviceUUID, charUUID)
+	webBluetooth.getCharacteristic(serviceUUID, charUUID)
 		.then((characteristic) => {
 			setButtonState(charRow.querySelector(`[data-btn-write]`), characteristic.properties.write);
 			setButtonState(charRow.querySelector(`[data-btn-read]`), characteristic.properties.read);
