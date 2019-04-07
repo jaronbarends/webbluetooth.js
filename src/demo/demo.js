@@ -24,21 +24,21 @@ const options = {
 
 //-- connecting with the device
 document.getElementById(`connect-btn`).addEventListener('click', async function() {
-	device = await webBluetooth.connect(options);
+	await webBluetooth.connect(options);
 	console.log('connected to device');
 });
 
 
 //-- disconnecting from the device
 document.getElementById(`disconnect-btn`).addEventListener('click', function() {
-	webBluetooth.disconnect(device);
+	webBluetooth.disconnect();
 	console.log('disconnected');
 });
 
 //-- read led value
 document.getElementById(`read-btn`).addEventListener('click', async function() {
-	const value = await device.readValue(SERVICE_UUID_TUIS, CHAR_UUID_LED);
-	const value2 = await device.readValue(SERVICE_UUID_TUIS, CHAR_UUID_LED, Uint8Array);
+	const value = await webBluetooth.readValue(SERVICE_UUID_TUIS, CHAR_UUID_LED);
+	const value2 = await webBluetooth.readValue(SERVICE_UUID_TUIS, CHAR_UUID_LED, Uint8Array);
 	console.log('value:', value);
 	console.log('value2:', value2);
 });
@@ -47,7 +47,7 @@ document.getElementById(`read-btn`).addEventListener('click', async function() {
 //-- write led value (red)
 document.getElementById(`write-btn--red`).addEventListener('click', async function() {
 	const value = new Uint8Array([2, 1, 74, 208, 7]);// the second array value represents color (1-7 allowed)
-	await device.writeValue(SERVICE_UUID_TUIS, CHAR_UUID_LED, value);
+	await webBluetooth.writeValue(SERVICE_UUID_TUIS, CHAR_UUID_LED, value);
 	console.log('done writing');
 });
 
@@ -55,7 +55,7 @@ document.getElementById(`write-btn--red`).addEventListener('click', async functi
 //-- write led value (green)
 document.getElementById(`write-btn--green`).addEventListener('click', async function() {
 	const value = new Uint8Array([2, 2, 74, 208, 7]);// the second array value represents color (1-7 allowed)
-	await device.writeValue(SERVICE_UUID_TUIS, CHAR_UUID_LED, value);
+	await webBluetooth.writeValue(SERVICE_UUID_TUIS, CHAR_UUID_LED, value);
 	console.log('done writing');
 });
 
@@ -71,7 +71,7 @@ const notificationHandler = function(e) {
 
 //-- start notifications
 document.getElementById(`start-notify-btn`).addEventListener('click', async function() {
-	const characteristic = await device.getCharacteristic(SERVICE_UUID_TES, CHAR_UUID_TEMP);
+	const characteristic = await webBluetooth.getCharacteristic(SERVICE_UUID_TES, CHAR_UUID_TEMP);
 	characteristic.addEventListener('characteristicvaluechanged', notificationHandler);// use named function instead of anonymous function here to be able to remove this event listener later
 	characteristic.startNotifications();
 });
@@ -79,7 +79,7 @@ document.getElementById(`start-notify-btn`).addEventListener('click', async func
 
 //-- stop notifications
 document.getElementById(`stop-notify-btn`).addEventListener('click', async function() {
-	const characteristic = await device.getCharacteristic(SERVICE_UUID_TES, CHAR_UUID_TEMP);
+	const characteristic = await webBluetooth.getCharacteristic(SERVICE_UUID_TES, CHAR_UUID_TEMP);
 	characteristic.removeEventListener('characteristicvaluechanged', notificationHandler);
 	characteristic.stopNotifications();
 });

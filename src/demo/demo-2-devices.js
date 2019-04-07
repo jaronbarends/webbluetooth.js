@@ -2,7 +2,7 @@
 import WebBluetooth from '../WebBluetooth.js';
 
 // create an instance
-const webBluetooth = new WebBluetooth();
+// const webBluetooth = new WebBluetooth();
 let thingyDevice;
 let bulbDevice;
 let buttonCharacteristic;
@@ -35,7 +35,8 @@ const bulbOptions = {
 
 //-- connecting with the device
 document.getElementById(`connect-btn--thingy`).addEventListener('click', async function() {
-	thingyDevice = await webBluetooth.connect(thingyOptions);
+	thingyDevice = new WebBluetooth();
+	await thingyDevice.connect(thingyOptions);
 	console.log('connected to Thingy');
 	console.log('fetch button characteristic');
 	buttonCharacteristic = await thingyDevice.getCharacteristic(SERVICE_UUID_TUIS, CHAR_UUID_BUTTON);
@@ -47,7 +48,8 @@ document.getElementById(`connect-btn--thingy`).addEventListener('click', async f
 
 //-- connecting with the device
 document.getElementById(`connect-btn--magic-blue`).addEventListener('click', async function() {
-	bulbDevice = await webBluetooth.connect(bulbOptions);
+	bulbDevice = new WebBluetooth();
+	await bulbDevice.connect(bulbOptions);
 	console.log('connected to MagicBlue bulb');
 	console.log('fetch led characteristic');
 	ledCharacteristic = await bulbDevice.getCharacteristic(SERVICE_UUID_MAGIC_BLUE, CHAR_UUID_LED);
@@ -67,15 +69,19 @@ document.getElementById(`disconnect-btn`).addEventListener('click', function() {
 const buttonchangeHandler = function(e) {
 	const characteristic = e.target;
 	const dataView = characteristic.value;
-	const uint8Array = webBluetooth.util.transform.dataViewToUint8Array(dataView);
+	const uint8Array = thingyDevice.util.transform.dataViewToUint8Array(dataView);
 	const pressed = uint8Array[0] === 1;
 	if (pressed) {
-		// write random value to bulb
-		const r = Math.floor(256*Math.random());
-		const g = Math.floor(256*Math.random());
-		const b = Math.floor(256*Math.random());
+		// write random value to bulb if bulb is connected
+		if (bulbDevice && bulbDevice.isConnected) {
+			const r = Math.floor(256*Math.random());
+			const g = Math.floor(256*Math.random());
+			const b = Math.floor(256*Math.random());
 
-		const writeValue = new Uint8Array([0x56, r, g, b, 0xbb, 0xf0, 0xaa]);
-		bulbDevice.writeValue(SERVICE_UUID_MAGIC_BLUE, CHAR_UUID_LED, writeValue);
+			const writeValue = new Uint8Array([0x56, r, g, b, 0xbb, 0xf0, 0xaa]);
+			bulbDevice.writeValue(SERVICE_UUID_MAGIC_BLUE, CHAR_UUID_LED, writeValue);
+		} else {
+			console.warn('not connected to bulb');
+		}
 	}
 }
